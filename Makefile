@@ -12,7 +12,7 @@ run:
 
 lint: lib/mongo.js
 	@echo "\n\n\nLinting.."
-	@jshint lib/*.js
+	@jshint --config .jshintrc lib/*.js
 
 
 .PHONY: build
