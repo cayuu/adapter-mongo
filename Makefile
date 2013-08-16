@@ -19,7 +19,7 @@ test:
 	@echo "Testing.."
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--reporter $(REPORTER) \
-		test/**/*.js
+		test/runner.js
 
 
 .PHONY: test
