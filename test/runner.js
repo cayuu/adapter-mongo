@@ -104,7 +104,7 @@ describe('adapter', function() {
 
     it('should connect to an authenticated db');
 
-    it('should destroy a connection on .disconnect()', function( done ) {
+    it('should destroy a connection on .disconnect(cb)', function( done ) {
       // Build an explicit connection
       mongo.connect( function( err, db ) {
         if (err) done( err );
@@ -125,13 +125,25 @@ describe('adapter', function() {
       });
     })
 
-    it('should fail to .disconnect() if no connection present', function(done) {
+    it('should fail to .disconnect(cb) if no connection present', function(done) {
       mongo.disconnect( function(err) {
         expect( err ).to.be.an( Error );
         expect( err.message ).to.match( /No connection/ );
         done();
       });
     });
+
+    it('should throw an error if disconnect() fails and no cb passed',
+      function(done) {
+        var err;
+        try {
+          mongo.disconnect();
+        }
+        catch( e ) { err = e; }
+        expect( err ).to.be.an( Error );
+        expect( err ).to.match( /No connection/ );
+        done();
+      });
 
   });
 
