@@ -31,18 +31,30 @@ describe('adapter', function() {
   // Note: ALL tests should do this. Factor this into general adapter tests
 
 
+  describe('.configure( options )', function() {
+    it('should enable updating config via .configure(options)', function() {
+      expect( mongo.configure ).to.be.a( Function );
+      var user = mongo.configure().user;
+      var newConfig = mongo.configure({user:'hello'});
 
-  it('should enable updating config via .configure(options)', function() {
-    expect( mongo.configure ).to.be.a( Function );
-    var user = mongo.configure().user;
-    var newConfig = mongo.configure({user:'hello'});
+      expect( user ).to.not.eql( newConfig.user );
 
-    expect( user ).to.not.eql( newConfig.user );
+      // reset it back to the original value
+      mongo.configure( {user:user} );
+    });
 
-    // reset it back to the original value
-    mongo.configure( {user:user} );
+    it('should fail to set a key not present in config', function() {
+      var err;
+      try {
+        mongo.configure( {boguskey: 'blaaaaaam'} );
+      }
+      catch( e ) {
+        err = e;
+      }
+      expect( err ).to.be.an( Error );
+      expect( err.message ).to.match( /config.*option/ );
+    });
   });
-
 
   describe('.exec( query, cb )', function() {
 
