@@ -54,6 +54,8 @@ describe('adapter', function() {
 
 
 
+// Note: Exceptions thrown inside the monogodb.collection.{action}.toArray()
+// do NOT propagate back up to Mocha. Must manually catch and pass to done(e)
 describe('.find()', function() {
 
   // Hoist query reference
@@ -66,11 +68,50 @@ describe('.find()', function() {
   });
 
 
-  it('should find records', function( done ) {
-    q.find().from('users').done( function(err, res) {
-      expect( res.length ).to.be.greaterThan( 0 );
-      done();
-    });
+  it('should return records on a .find() action', function( done ) {
+    q
+      .find()
+      .from('users')
+      .done( function(err, res) {
+        try {
+          expect( res.length ).to.be.greaterThan( 0 );
+          done();
+        }
+        catch( e ) { done( e ); }
 
+      });
   });
+
+  it.skip('should limit records returned on .limit(num)', function( done ) {
+    q
+      .find()
+      .from('users')
+      .limit( 1 )
+      .done( function( err, res ) {
+        try {
+          if (err) done( err );
+          expect( res.length ).to.be( 1 );
+          done();
+        }
+        catch( e ) { done( e ); }
+      });
+  });
+
+  it.skip('should conditionally return records .where(age).is(x)', function( done ) {
+    q
+      .find()
+      .from( 'users' )
+      .where( 'name' )
+        .is( 'Hulk Hogan' )
+      .done( function( err, res ) {
+        try {
+          if (err) done( err );
+          expect( res[0].name ).to.be( 'Hulk Hogan' );
+          done();
+        }
+        catch( e ) { done( e ); }
+      });
+  });
+
+
 });
