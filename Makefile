@@ -21,5 +21,13 @@ test:
 		--reporter $(REPORTER) \
 		test/runner.js
 
+coverage:
+	@echo "Generating coverage report.."
+	@NODE_ENV=test ./node_modules/.bin/mocha \
+		--require blanket \
+		test/runner.js \
+		--reporter html-cov > coverage.html
+	@echo "Done: ./coverage.html"
+
 
 .PHONY: test
