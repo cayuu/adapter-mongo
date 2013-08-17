@@ -34,6 +34,18 @@ describe('adapter', function() {
   });
 
 
+  it('should enable updating config via .configure(options)', function() {
+    expect( mongo.configure ).to.be.a( Function );
+    var user = mongo.configure().user;
+    var newConfig = mongo.configure({user:'hello'});
+
+    expect( user ).to.not.eql( newConfig.user );
+
+    // reset it back to the original value
+    mongo.configure( {user:user} );
+  });
+
+
   describe('.connect()', function() {
 
     it('should return a db handle on connect', function( done ) {
