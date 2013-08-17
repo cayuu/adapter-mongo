@@ -32,6 +32,24 @@ describe('adapter', function() {
   it('should expose an .exec() method', function() {
     expect( mongo.exec ).to.be.a( Function );
   });
+
+
+  describe('.connect()', function() {
+
+    it('should return a db handle on connect', function( done ) {
+      mongo.connect( function( err, db ) {
+        if (err) done( err );
+
+        expect( db ).to.not.be.empty();
+        expect( db.admin ).to.be.a( Function );
+        done();
+      });
+    });
+
+    it('should connect to an authenticated db');
+
+  });
+
 });
 
 
