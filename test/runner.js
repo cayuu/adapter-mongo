@@ -90,7 +90,7 @@ describe('adapter', function() {
   });
 
 
-  describe('.connect()', function() {
+  describe('.connect() and .disconnect()', function() {
 
     it('should return a db handle on connect', function( done ) {
       mongo.connect( function( err, db ) {
@@ -103,6 +103,35 @@ describe('adapter', function() {
     });
 
     it('should connect to an authenticated db');
+
+    it('should destroy a connection on .disconnect()', function( done ) {
+      // Build an explicit connection
+      mongo.connect( function( err, db ) {
+        if (err) done( err );
+
+        // Check that `db` came back with something useful
+        expect( db.admin ).to.be.a( Function );
+
+        mongo.disconnect( function(err,res) {
+          if (err) done( err );
+
+          // Force a database attempt
+          mongo.find( {resource:'users'}, function(err,res){
+            expect( err ).to.match( /Connection.*destroyed/ );
+            done();
+          })
+
+        });
+      });
+    })
+
+    it('should fail to .disconnect() if no connection present', function(done) {
+      mongo.disconnect( function(err) {
+        expect( err ).to.be.an( Error );
+        expect( err.message ).to.match( /No connection/ );
+        done();
+      });
+    });
 
   });
 
