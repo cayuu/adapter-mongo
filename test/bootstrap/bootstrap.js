@@ -4,8 +4,12 @@ var options = require('./config').config
 module.exports = function( adapter ) {
 
   // Before the tests, configure the adapter config options
-  before( function() {
+  before( function(done) {
     adapter.configure( options );
+    adapter.connect( function(err, db) {
+      if (err) done( err );
+      done();
+    })
   });
 
   // Once the tests are complete, destroy the test db
@@ -57,7 +61,6 @@ module.exports.reset = function( adapter, done ) {
     });
   }
 
-
   // Connect and reset
   if (adapter.connection.db) reset( adapter.connection );
   else {
@@ -66,7 +69,4 @@ module.exports.reset = function( adapter, done ) {
       reset( db );
     });
   }
-
-
-
 };

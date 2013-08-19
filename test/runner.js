@@ -66,25 +66,31 @@ describe('adapter', function() {
     // correctly queue until the adapter has built a connection to its
     // service - then executing the queued queries
     it('should queue queries until service connection', function(done) {
-      // Tiny potential race condition here:
-      // We're assuming that the .exec() delegation to .connect()
-      // and subsequent mongodb connection establishment will take
-      // longer than the synchronous execution of the following calls.
-      expect( mongo.connection ).to.be.empty();
-      query(mongo).find().from('users').done( cb );
-      expect( mongo.connection ).to.be.empty();
-      query(mongo).find().from('users').done( cb );
-
-      // At this stage, if no DB is yet connected, queue must be in place
-      // for the callbacks to execute
-      expect( mongo.connection ).to.be.empty();
-
-      var count = 0;
-      function cb( err, res ) {
+      mongo.disconnect( function(err, res) {
         if (err) done( err );
-        // Both callbacks have executed. Success!
-        if (++count === 2) done();
-      }
+
+        // Tiny potential race condition here:
+        // We're assuming that the .exec() delegation to .connect()
+        // and subsequent mongodb connection establishment will take
+        // longer than the synchronous execution of the following calls.
+        expect( mongo.connection ).to.be.empty();
+        query('mongo').find().from('users').done( cb );
+        expect( mongo.connection ).to.be.empty();
+        query('mongo').find().from('users').done( cb );
+
+        // At this stage, if no DB is yet connected, queue must be in place
+        // for the callbacks to execute
+        expect( mongo.connection ).to.be.empty();
+
+        var count = 0;
+        function cb( err, res ) {
+          if (err) done( err );
+          // Both callbacks have executed. Success!
+          if (++count === 2) done();
+        }
+
+      });
+
     });
 
   });
@@ -104,6 +110,10 @@ describe('adapter', function() {
 
     it('should connect to an authenticated db');
 
+    // This test uses DIRECT mongo adapter calls rather than the delegations
+    // through `query()`. This BYPASSES .exec() which is NOT RECOMMENDED in
+    // production, but is useful for testing the adapter.
+    // DO NOT DO THIS in production code. Mediate everything through `query`
     it('should destroy a connection on .disconnect(cb)', function( done ) {
       // Build an explicit connection
       mongo.connect( function( err, db ) {
@@ -115,6 +125,8 @@ describe('adapter', function() {
         mongo.disconnect( function(err,res) {
           if (err) done( err );
 
+          // Overwrite db reference **Pls don't do this in production
+          mongo.connection = db;
           // Force a database attempt
           mongo.find( {resource:'users'}, function(err,res){
             expect( err ).to.match( /Connection.*destroyed/ );
