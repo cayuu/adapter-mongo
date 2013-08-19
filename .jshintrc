@@ -7,5 +7,6 @@
   "laxcomma":  true,
   "laxbreak":  true,
   "onecase":   true,
-  "sub":       true
+  "sub":       true,
+  "boss":      true
 }
