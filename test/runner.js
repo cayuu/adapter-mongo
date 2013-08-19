@@ -162,6 +162,10 @@ describe('adapter', function() {
 });
 
 
+// The tests in this block work from an initialised base state but DO NOT
+// reset state for each test. This is a speed consideration.
+// If you are testing for an expected state, use `bootstrap.reset( mongo, done )
+// and BE AWARE of the shared state of these tests
 describe('CRUD', function() {
 
   // Reset the DB prior to attempting any CRUD exercises
@@ -197,20 +201,22 @@ describe('CRUD', function() {
 
   it('should create several records');
 
-  it('should remove an existing record [resets db]', function( done ) {
+  // This deletes the record created above
+  it('should remove an existing record', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
-      expect( res ).to.be( 1 );
-      // done();
-      // Reset the database back to what we expect
-      bootstrap.reset( mongo, done );
+      try {
+        expect( res ).to.be( 1 );
+        done();
+      }
+      catch( e ) { done( e ); }
     }
 
     query('mongo')
       .from('users')
       .remove()
-      .where('name').is( 'Hulk Hogan' )
+      .where('name').is( 'Smoo moo' )
       .done( cb );
   });
 
