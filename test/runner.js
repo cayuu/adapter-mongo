@@ -440,6 +440,27 @@ describe('Constraints .where()', function() {
       .done( cb );
   });
 
+  it('should compound constraints [eg. .is(x) .nin(y)]', function(done) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        // Expects only Hulk Hogan and The Undertaker
+        expect( res ).to.have.length( 2 );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where( 'alive' ).is( true )
+      .where( 'weight' ).gte( 299 )
+      .done( cb );
+
+  });
+
 });
 
 
