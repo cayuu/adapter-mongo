@@ -284,9 +284,46 @@ describe('CRUD', function() {
 
 describe('Organisation', function() {
 
-  it('should limit results based on .limit( number )');
+  it('should limit results based on .limit( number )', function( done ) {
 
-  it('should return an .offset( lastIndex ) of results ');
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 3 );
+        expect( res[0].name ).to.be( 'Ultimate Warrior' );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from( 'users' )
+      .find()
+      .limit( 3 )
+      .done( cb );
+
+  });
+
+  it('should return an .offset( lastIndex ) of results', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 2 );
+        expect( res[0].name ).to.be( 'The Undertaker' );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from( 'users' )
+      .find()
+      .limit( 2 )
+      .offset( 2 )
+      .done( cb );
+
+  });
 
   it('should sort records ascending .sort( "asc" )');
 
