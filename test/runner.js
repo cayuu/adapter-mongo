@@ -273,7 +273,40 @@ describe('Organisation', function() {
 
 describe('Constraints .where()', function() {
 
-  it('should support .is( val ) & .eq( val )');
+  it('should support .is( val ) & .eq( val )', function(done) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 1 );
+        expect( res[0].name ).to.be( 'Hulk Hogan' );
+
+        query('mongo')
+          .from('users')
+          .find()
+          .where( 'name' ).eq( 'Hulk Hogan' )
+          .done( function(err, res) {
+            if (err) done( err );
+            try {
+              expect( res ).to.have.length( 1 );
+              expect( res[0].name ).to.be( 'Hulk Hogan' );
+              done();
+            }
+            catch(e) { done(e); }
+
+          })
+
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query( 'mongo' )
+      .from( 'users' )
+      .find()
+      .where( 'name' ).is( 'Hulk Hogan' )
+      .done( cb );
+
+  });
 
   it('should support .in( array )');
 
