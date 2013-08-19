@@ -251,7 +251,24 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should find several records matching search criteria');
+  it('should find several records matching search criteria', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+
+      try {
+        expect( res.length ).to.be.greaterThan( 2 );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where( 'weight' ).gt( 290 )
+      .done( cb );
+  });
 
   it('should update a record');
 
