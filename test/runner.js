@@ -275,17 +275,17 @@ describe('Constraints .where()', function() {
 
   it('should support .is( val ) & .eq( val )', function(done) {
 
+    var q = query( 'mongo' )
+      .from( 'users' )
+      .find();
+
     function cb( err, res ) {
       if (err) done( err );
       try {
         expect( res ).to.have.length( 1 );
         expect( res[0].name ).to.be( 'Hulk Hogan' );
 
-        query('mongo')
-          .from('users')
-          .find()
-          .where( 'name' ).eq( 'Hulk Hogan' )
-          .done( function(err, res) {
+        q.where( 'name' ).eq( 'Hulk Hogan' ).done( function(err, res) {
             if (err) done( err );
             try {
               expect( res ).to.have.length( 1 );
@@ -300,17 +300,41 @@ describe('Constraints .where()', function() {
       catch( e ) { done( e ); }
     }
 
-    query( 'mongo' )
-      .from( 'users' )
-      .find()
-      .where( 'name' ).is( 'Hulk Hogan' )
-      .done( cb );
+    q.where( 'name' ).is( 'Hulk Hogan' ).done( cb );
 
   });
 
   it('should support .in( array )');
 
-  it('should support exlusion .neq( val ) & .not( val )');
+  it('should support exlusion .neq( val ) & .not( val )', function( done ) {
+
+    var q = query('mongo')
+      .from('users')
+      .find();
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 1 );
+        expect( res[0].name ).to.be( 'Andre The Giant' );
+
+        q.where( 'alive' ).neq( true ).done( function(err, res) {
+            if (err) done( err );
+            try {
+              expect( res ).to.have.length( 1 );
+              expect( res[0].name ).to.be( 'Andre The Giant' );
+              done();
+            }
+            catch(e) { done(e); }
+
+          });
+
+      }
+      catch( e ) { done( e ); }
+    }
+
+    q.where( 'alive' ).not( true ).done( cb );
+  });
 
   it('should support lower comparators .lt( val ) & .lte( val )');
 
