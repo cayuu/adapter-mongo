@@ -186,7 +186,24 @@ describe('CRUD', function() {
 
   it('should delete an existing record');
 
-  it('should find an existing record');
+  it('should find an existing record', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length(1);
+        expect( res[0].name ).to.be( 'Hulk Hogan' );
+        done();
+      }
+      catch( e ) { done(e); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where( 'name' ).is( 'Hulk Hogan' )
+      .done( cb );
+  });
 
   it('should return no records if nothing found');
 
