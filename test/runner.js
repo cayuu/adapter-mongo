@@ -275,17 +275,16 @@ describe('Constraints .where()', function() {
 
   it('should support .is( val ) & .eq( val )', function(done) {
 
-    var q = query( 'mongo' )
-      .from( 'users' )
-      .find();
-
     function cb( err, res ) {
       if (err) done( err );
       try {
         expect( res ).to.have.length( 1 );
         expect( res[0].name ).to.be( 'Hulk Hogan' );
 
-        q.where( 'name' ).eq( 'Hulk Hogan' ).done( function(err, res) {
+        query( 'mongo' )
+          .from( 'users' )
+          .find()
+          .where( 'name' ).eq( 'Hulk Hogan' ).done( function(err, res) {
             if (err) done( err );
             try {
               expect( res ).to.have.length( 1 );
@@ -300,7 +299,11 @@ describe('Constraints .where()', function() {
       catch( e ) { done( e ); }
     }
 
-    q.where( 'name' ).is( 'Hulk Hogan' ).done( cb );
+    query( 'mongo' )
+      .from( 'users' )
+      .find()
+      .where( 'name' ).is( 'Hulk Hogan' )
+      .done( cb );
 
   });
 
@@ -308,17 +311,16 @@ describe('Constraints .where()', function() {
 
   it('should support exlusion .neq( val ) & .not( val )', function( done ) {
 
-    var q = query('mongo')
-      .from('users')
-      .find();
-
     function cb( err, res ) {
       if (err) done( err );
       try {
         expect( res ).to.have.length( 1 );
         expect( res[0].name ).to.be( 'Andre The Giant' );
 
-        q.where( 'alive' ).neq( true ).done( function(err, res) {
+        query('mongo')
+          .from('users')
+          .find()
+          .where( 'alive' ).neq( true ).done( function(err, res) {
             if (err) done( err );
             try {
               expect( res ).to.have.length( 1 );
@@ -333,12 +335,73 @@ describe('Constraints .where()', function() {
       catch( e ) { done( e ); }
     }
 
-    q.where( 'alive' ).not( true ).done( cb );
+    query('mongo')
+      .from('users')
+      .find()
+      .where( 'alive' ).not( true )
+      .done( cb );
   });
 
-  it('should support lower comparators .lt( val ) & .lte( val )');
+  it('should support comparators .lt( val ) & .lte( val )', function(done) {
 
-  it('should support upper comparators .gt( val ) & .gte( val )');
+    function cb( err, res ) {
+      if (err) done( err );
+
+      try{
+        expect( res ).to.have.length( 2 );
+
+        query('mongo')
+          .from('users')
+          .find()
+          .where('weight').lte( 302 ).done( function(err, res) {
+            if (err) done( err );
+            try {
+              expect( res ).to.have.length( 3 );
+              done();
+            }
+            catch( e ) { done( e ); }
+          });
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where('weight').lt(302)
+      .done( cb );
+
+  });
+
+  it('should support comparators .gt( val ) & .gte( val )', function(done) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 2 );
+
+        query('mongo')
+          .from( 'users' )
+          .find()
+          .where( 'weight' ).gte( 299 )
+          .done( function( err, res ) {
+            if (err) done( err );
+            try {
+              expect( res ).to.have.length( 3 );
+              done();
+            }
+            catch( e ) { done( e ); }
+          });
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where( 'weight' ).gt( 299 )
+      .done( cb );
+  });
 
 });
 
