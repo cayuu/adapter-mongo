@@ -70,14 +70,14 @@ describe('adapter', function() {
       // We're assuming that the .exec() delegation to .connect()
       // and subsequent mongodb connection establishment will take
       // longer than the synchronous execution of the following calls.
-      expect( mongo.raw ).to.be.empty();
+      expect( mongo.connection ).to.be.empty();
       query(mongo).find().from('users').done( cb );
-      expect( mongo.raw ).to.be.empty();
+      expect( mongo.connection ).to.be.empty();
       query(mongo).find().from('users').done( cb );
 
       // At this stage, if no DB is yet connected, queue must be in place
       // for the callbacks to execute
-      expect( mongo.raw ).to.be.empty();
+      expect( mongo.connection ).to.be.empty();
 
       var count = 0;
       function cb( err, res ) {
@@ -151,8 +151,8 @@ describe('adapter', function() {
 
 
 
-// Note: Exceptions thrown inside the monogodb.collection.{action}.toArray()
-// do NOT propagate back up to Mocha. Must manually catch and pass to done(e)
+// Note: Exceptions thrown inside this block do NOT propagate back up to Mocha.
+// Must manually catch and pass to done(e)
 describe('.find()', function() {
 
   // Hoist query reference
