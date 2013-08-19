@@ -162,43 +162,12 @@ describe('adapter', function() {
 });
 
 
-
-// Note: Exceptions thrown inside this block do NOT propagate back up to Mocha.
-// Must manually catch and pass to done(e)
-describe('.find()', function() {
-
-  // Hoist query reference
-  var q;
-
-  // Destroy and reset state
-  beforeEach( function( done ) {
-    q = query('mongo');
-    bootstrap.reset( mongo, done );
-  });
-
-
-  it('should return records on a .find() action', function( done ) {
-    q
-      .find()
-      .from('users')
-      .done( function(err, res) {
-        try {
-          expect( res.length ).to.be.greaterThan( 0 );
-          done();
-        }
-        catch( e ) { done( e ); }
-
-      });
-  });
-});
-
-
 describe('CRUD', function() {
 
-  // Destroy and reset state
-  // beforeEach( function( done ) {
-  //   bootstrap.reset( mongo, done );
-  // });
+  // Reset the DB prior to attempting any CRUD exercises
+  before( function(done) {
+    bootstrap.reset( mongo, done )
+  });
 
   it('should create a new record', function( done ) {
 
@@ -264,9 +233,29 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should return no records if nothing found');
+  it('should return no records if nothing found', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 0 );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where('junkfield').is('junkvalue')
+      .done( cb );
+  });
+
+  it('should find several records matching search criteria');
 
   it('should update a record');
+
+  it('should update several records matching criteria');
 });
 
 
