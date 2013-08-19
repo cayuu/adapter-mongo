@@ -307,7 +307,44 @@ describe('Constraints .where()', function() {
 
   });
 
-  it('should support .in( array )');
+  it('should support .in( array )', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        // Match 'Hogan' and 'Warrior' (the 500 weight is intentionally bogus)
+        expect( res ).to.have.length( 2 );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where('weight').in( [299, 302, 500] )
+      .done( cb );
+  });
+
+  it('should support .nin( array )', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      try {
+        // Should only match Andre The Giant
+        expect( res ).to.have.length( 1 );
+        expect( res[0].name ).to.be('Andre The Giant');
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .find()
+      .where('weight').nin( [299, 302, 280] )
+      .done( cb );
+  });
 
   it('should support exlusion .neq( val ) & .not( val )', function( done ) {
 
