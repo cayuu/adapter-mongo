@@ -178,37 +178,55 @@ describe('.find()', function() {
 
       });
   });
+});
 
-  it.skip('should limit records returned on .limit(num)', function( done ) {
-    q
-      .find()
-      .from('users')
-      .limit( 1 )
-      .done( function( err, res ) {
-        try {
-          if (err) done( err );
-          expect( res.length ).to.be( 1 );
-          done();
-        }
-        catch( e ) { done( e ); }
-      });
-  });
 
-  it.skip('should conditionally return records .where(age).is(x)', function( done ) {
-    q
-      .find()
-      .from( 'users' )
-      .where( 'name' )
-        .is( 'Hulk Hogan' )
-      .done( function( err, res ) {
-        try {
-          if (err) done( err );
-          expect( res[0].name ).to.be( 'Hulk Hogan' );
-          done();
-        }
-        catch( e ) { done( e ); }
-      });
-  });
+describe('CRUD', function() {
+  it('should create a new record');
 
+  it('should delete an existing record');
+
+  it('should find an existing record');
+
+  it('should return no records if nothing found');
+
+  it('should update a record');
+});
+
+
+describe('Organisation', function() {
+
+  it('should limit results based on .limit( number )');
+
+  it('should return an .offset( lastIndex ) of results ');
+
+  it('should sort records ascending .sort( "asc" )');
+
+  it('should sort records descending .sort( "desc" )');
+
+});
+
+describe('Constraints .where()', function() {
+
+  it('should support .is( val ) & .eq( val )');
+
+  it('should support .in( array )');
+
+  it('should support exlusion .neq( val ) & .not( val )');
+
+  it('should support lower comparators .lt( val ) & .lte( val )');
+
+  it('should support upper comparators .gt( val ) & .gte( val )');
+
+});
+
+
+describe('Associations', function() {
+
+  it('should populate associated records with .include() :read');
+
+  it('should update associate records on :update');
+
+  it('should destroy dependent records on .remove() :delete');
 
 });
