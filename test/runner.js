@@ -182,9 +182,56 @@ describe('.find()', function() {
 
 
 describe('CRUD', function() {
-  it('should create a new record');
 
-  it('should delete an existing record');
+  // Destroy and reset state
+  // beforeEach( function( done ) {
+  //   bootstrap.reset( mongo, done );
+  // });
+
+  it('should create a new record', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+
+      // Check this record exists
+      query('mongo')
+        .from('users')
+        .find()
+        .where('name').is('Smoo moo')
+        .done( function(err, res) {
+          if (err) done( err );
+
+          expect( res ).to.have.length( 1 );
+          expect( res[0].name ).to.be( 'Smoo moo' );
+
+          done();
+        });
+    };
+
+    query('mongo')
+      .from('users')
+      .create( {name:'Smoo moo'} )
+      .done( cb );
+  });
+
+  it('should create several records');
+
+  it('should remove an existing record [resets db]', function( done ) {
+
+    function cb( err, res ) {
+      if (err) done( err );
+      expect( res ).to.be( 1 );
+      // done();
+      // Reset the database back to what we expect
+      bootstrap.reset( mongo, done );
+    }
+
+    query('mongo')
+      .from('users')
+      .remove()
+      .where('name').is( 'Hulk Hogan' )
+      .done( cb );
+  });
 
   it('should find an existing record', function( done ) {
 
