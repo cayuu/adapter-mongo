@@ -27,10 +27,8 @@ module.exports.reset = function( adapter, done ) {
   if (!dbName.match(/test/))
     throw new Error('Refusing to drop non "test" database: ' + dbName );
 
-  // Connect and reset
-  adapter.connect( function(err, db) {
-    if (err) done( err );
 
+  var reset = function( db ) {
     // Drop the currently connected database
     db.dropDatabase( function(err, res) {
       if (err) done( err );
@@ -56,8 +54,19 @@ module.exports.reset = function( adapter, done ) {
         });
 
       };
-
     });
+  }
 
-  });
+
+  // Connect and reset
+  if (adapter.connection.db) reset( adapter.connection );
+  else {
+    adapter.connect( function(err, db) {
+      if (err) done( err );
+      reset( db );
+    });
+  }
+
+
+
 };
