@@ -1,6 +1,6 @@
 var expect = require('expect.js')
   , mongo = require('../lib/mongo.js')
-  , query = require('../../../query/lib/index');
+  , query = require('../../query/lib/index');
 
 
 // Bootstrap configures connections and ensures teardown of testDB
@@ -406,7 +406,7 @@ describe('Constraints .where()', function() {
       .done( cb );
   });
 
-  it('should support exlusion .neq( val ) & .not( val )', function( done ) {
+  it('should support exclusion .neq( val ) & .not( val )', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
