@@ -1,5 +1,5 @@
 {
-  "name": "adapter-mongo",
+  "name": "mekanika-adapter-mongo",
   "version": "0.0.0",
   "description": "Mongo adapter",
   "main": "lib/mongo.js",
