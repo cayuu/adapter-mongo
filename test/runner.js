@@ -1,5 +1,6 @@
 var expect = require('expect.js')
   , mongo = require('../lib/mongo.js')
+  , utils = require('../lib/utils.js')
   , query = require('../../query/lib/index');
 
 
@@ -156,6 +157,57 @@ describe('adapter', function() {
         expect( err ).to.match( /No connection/ );
         done();
       });
+
+  });
+
+});
+
+
+
+describe('utils.', function() {
+
+  it('should load utils', function() {
+    expect( utils ).to.not.be.empty();
+  });
+
+  describe('selector()', function() {
+
+    it('should have a selector Function', function() {
+      expect( utils.selector ).to.be.a( Function );
+    });
+
+    it('should return an Object', function() {
+      var q = query();
+      expect( utils.selector( q ) ).to.be.an( Object );
+    });
+
+    it('should directly apply equality values', function() {
+      var q = query().where('crash').is( 1 );
+      var sel = utils.selector( q );
+
+      expect( sel ).to.have.keys( 'crash' );
+      expect( sel.crash ).to.be( 1 );
+    });
+
+    it('should map `neq` to `ne`', function() {
+      var q = query().where('boom').neq( 1 );
+      var sel = utils.selector( q );
+
+      expect( sel.boom ).to.be.an( Object );
+      expect( sel.boom[ '$ne' ] ).to.be( 1 );
+    });
+
+    it('should map operators as `$operator`', function() {
+      var q = query()
+        .where('boom').gt( 1 )
+        .and('crash').lte( 3 )
+        .and('splat').in( [1,2,3] );
+
+      var sel = utils.selector( q );
+      expect( sel.boom ).to.have.key( '$gt' );
+      expect( sel.crash ).to.have.key( '$lte' );
+      expect( sel.splat ).to.have.key( '$in' );
+    });
 
   });
 
