@@ -212,7 +212,7 @@ describe('utils.', function() {
   });
 
 
-  describe.only('modifiers()', function() {
+  describe('modifiers()', function() {
 
     it('should have a .modifiers Function', function() {
       expect( utils.modifiers ).to.be.a( Function );
