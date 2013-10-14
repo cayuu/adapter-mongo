@@ -211,6 +211,52 @@ describe('utils.', function() {
 
   });
 
+
+  describe.only('modifiers()', function() {
+
+    it('should have a .modifiers Function', function() {
+      expect( utils.modifiers ).to.be.a( Function );
+    });
+
+    it('should return an object', function() {
+      var q = query();
+      expect( utils.modifiers( q ) ).to.be.an( Object );
+    });
+
+    it('should apply inputs as `$set` modifier', function() {
+      var q = query().update( {name:'Blaaam'});
+      expect( utils.modifiers( q ) ).to.have.key( '$set' );
+      expect( utils.modifiers( q )['$set'].name ).to.be( 'Blaaam' );
+    });
+
+    it('should only apply inputs if both inputs and modifiers provided', function() {
+      var q = query().update( {name:'Blaaam'} ).set('name').to('Boo');
+      expect( utils.modifiers( q )['$set'].name ).to.be( 'Blaaam' );
+    });
+
+    it('should map known modifiers (set, unset, rename, inc)', function() {
+      var q = query()
+        .set( 'name', 'Blaaam' )
+        .rename( 'hand', 'foot' )
+        .unset( 'deadly' )
+        .increment( 'age', 1 );
+
+      var mods = utils.modifiers( q );
+      expect( mods['$set'].name ).to.be( 'Blaaam' );
+      expect( mods['$rename'].hand ).to.be( 'foot' );
+      expect( mods['$inc'].age ).to.be( 1 );
+      expect( mods['$unset'].deadly ).to.be( '' );
+
+    });
+
+    it('should ignore unknown modifiers', function() {
+      var q = query();
+      q.modifiers['$fake'] = {nothing:'to_see_here'};
+      expect( utils.modifiers( q ) ).to.be.empty();
+    });
+
+  });
+
 });
 
 
