@@ -374,7 +374,40 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should update a record');
+  it('should update a record', function( done ) {
+
+    function verifycb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.have.length( 1 );
+        expect( res[0].weight ).to.be( 485 );
+        done();
+      }
+      catch( e ) { done( e ); }
+    }
+
+    function updatecb( err, res ) {
+      if (err) done( err );
+      try {
+        expect( res ).to.be( 1 );
+
+        // Double check it actually updated
+        query('mongo')
+          .from( 'users' )
+          .find()
+          .where( 'name' ).is('Andre The Giant')
+          .done( verifycb )
+      }
+      catch( e ) { done( e ); }
+    }
+
+    query('mongo')
+      .from('users')
+      .update()
+        .set('weight').to( 485 )
+      .where( 'weight' ).eq( 475 )
+      .done( updatecb );
+  });
 
   it('should update several records matching criteria');
 });
