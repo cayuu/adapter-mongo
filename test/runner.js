@@ -17,11 +17,11 @@ describe('Tests', function() {
     query.adapterClass( mongo.adapter );
   });
 
-  it('should export a Query factory', function() {
+  it('exports a Query factory', function() {
     expect( query ).to.be.a( Function );
   });
 
-  it('should initialise the mongo adapter', function() {
+  it('initialises the mongo adapter', function() {
     expect( mongo ).to.not.be.empty();
   });
 });
@@ -29,11 +29,11 @@ describe('Tests', function() {
 
 
 describe('adapter', function() {
-  // Note: ALL tests should do this. Factor this into general adapter tests
+  // Note: ALL tests do this. Factor this into general adapter tests
 
 
   describe('.configure( options )', function() {
-    it('should enable updating config via .configure(options)', function() {
+    it('enables updating config via .configure(options)', function() {
       expect( mongo.configure ).to.be.a( Function );
       var user = mongo.configure().user;
       var newConfig = mongo.configure({user:'hello'});
@@ -44,7 +44,7 @@ describe('adapter', function() {
       mongo.configure( {user:user} );
     });
 
-    it('should fail to set a key not present in config', function() {
+    it('fails to set a key not present in config', function() {
       var err;
       try {
         mongo.configure( {boguskey: 'blaaaaaam'} );
@@ -59,14 +59,14 @@ describe('adapter', function() {
 
   describe('.exec( query, cb )', function() {
 
-    it('should expose an .exec() method', function() {
+    it('exposes an .exec() method', function() {
       expect( mongo.exec ).to.be.a( Function );
     });
 
     // This test checks that direct `query(adapter)...done( fn )` calls
     // correctly queue until the adapter has built a connection to its
     // service - then executing the queued queries
-    it('should queue queries until service connection', function(done) {
+    it('queues queries until service connection', function(done) {
       mongo.disconnect( function(err, res) {
         if (err) done( err );
 
@@ -99,7 +99,7 @@ describe('adapter', function() {
 
   describe('.connect() and .disconnect()', function() {
 
-    it('should return a db handle on connect', function( done ) {
+    it('returns a db handle on connect', function( done ) {
       mongo.connect( function( err, db ) {
         if (err) done( err );
 
@@ -109,13 +109,13 @@ describe('adapter', function() {
       });
     });
 
-    it('should connect to an authenticated db');
+    it('connects to an authenticated db');
 
     // This test uses DIRECT mongo adapter calls rather than the delegations
     // through `query()`. This BYPASSES .exec() which is NOT RECOMMENDED in
     // production, but is useful for testing the adapter.
     // DO NOT DO THIS in production code. Mediate everything through `query`
-    it('should destroy a connection on .disconnect(cb)', function( done ) {
+    it('destroys a connection on .disconnect(cb)', function( done ) {
       // Build an explicit connection
       mongo.connect( function( err, db ) {
         if (err) done( err );
@@ -138,7 +138,7 @@ describe('adapter', function() {
       });
     })
 
-    it('should fail to .disconnect(cb) if no connection present', function(done) {
+    it('fails to .disconnect(cb) if no connection present', function(done) {
       mongo.disconnect( function(err) {
         expect( err ).to.be.an( Error );
         expect( err.message ).to.match( /No connection/ );
@@ -146,7 +146,7 @@ describe('adapter', function() {
       });
     });
 
-    it('should throw an error if disconnect() fails and no cb passed',
+    it('throws an error if disconnect() fails and no cb passed',
       function(done) {
         var err;
         try {
@@ -166,22 +166,22 @@ describe('adapter', function() {
 
 describe('utils.', function() {
 
-  it('should load utils', function() {
+  it('loads utils', function() {
     expect( utils ).to.not.be.empty();
   });
 
   describe('selector()', function() {
 
-    it('should have a selector Function', function() {
+    it('has a selector Function', function() {
       expect( utils.selector ).to.be.a( Function );
     });
 
-    it('should return an Object', function() {
+    it('returns an Object', function() {
       var q = query();
       expect( utils.selector( q ) ).to.be.an( Object );
     });
 
-    it('should directly apply equality values', function() {
+    it('directly applies equality values', function() {
       var q = query().where('crash').is( 1 );
       var sel = utils.selector( q );
 
@@ -189,7 +189,7 @@ describe('utils.', function() {
       expect( sel.crash ).to.be( 1 );
     });
 
-    it('should map `neq` to `ne`', function() {
+    it('maps `neq` to `ne`', function() {
       var q = query().where('boom').neq( 1 );
       var sel = utils.selector( q );
 
@@ -197,7 +197,7 @@ describe('utils.', function() {
       expect( sel.boom[ '$ne' ] ).to.be( 1 );
     });
 
-    it('should map operators as `$operator`', function() {
+    it('maps operators as `$operator`', function() {
       var q = query()
         .where('boom').gt( 1 )
         .and('crash').lte( 3 )
@@ -214,27 +214,27 @@ describe('utils.', function() {
 
   describe('modifiers()', function() {
 
-    it('should have a .modifiers Function', function() {
+    it('has a .modifiers Function', function() {
       expect( utils.modifiers ).to.be.a( Function );
     });
 
-    it('should return an object', function() {
+    it('returns an object', function() {
       var q = query();
       expect( utils.modifiers( q ) ).to.be.an( Object );
     });
 
-    it('should apply inputs as `$set` modifier', function() {
+    it('applies inputs as `$set` modifier', function() {
       var q = query().update( {name:'Blaaam'});
       expect( utils.modifiers( q ) ).to.have.key( '$set' );
       expect( utils.modifiers( q )['$set'].name ).to.be( 'Blaaam' );
     });
 
-    it('should only apply inputs if both inputs and modifiers provided', function() {
+    it('only applies inputs if both inputs and modifiers provided', function() {
       var q = query().update( {name:'Blaaam'} ).set('name').to('Boo');
       expect( utils.modifiers( q )['$set'].name ).to.be( 'Blaaam' );
     });
 
-    it('should map known modifiers (set, unset, rename, inc)', function() {
+    it('maps known modifiers (set, unset, rename, inc)', function() {
       var q = query()
         .set( 'name', 'Blaaam' )
         .rename( 'hand', 'foot' )
@@ -249,7 +249,7 @@ describe('utils.', function() {
 
     });
 
-    it('should ignore unknown modifiers', function() {
+    it('ignores unknown modifiers', function() {
       var q = query();
       q.modifiers['$fake'] = {nothing:'to_see_here'};
       expect( utils.modifiers( q ) ).to.be.empty();
@@ -271,7 +271,7 @@ describe('CRUD', function() {
     bootstrap.reset( mongo, done )
   });
 
-  it('should create a new record', function( done ) {
+  it('creates a new record', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -297,10 +297,10 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should create several records');
+  it('creates several records');
 
   // This deletes the record created above
-  it('should remove an existing record', function( done ) {
+  it('removes an existing record', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -318,7 +318,7 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should find an existing record', function( done ) {
+  it('finds an existing record', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -337,7 +337,7 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should return no records if nothing found', function( done ) {
+  it('returns no records if nothing found', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -355,7 +355,7 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should find several records matching search criteria', function( done ) {
+  it('finds several records matching search criteria', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -374,7 +374,7 @@ describe('CRUD', function() {
       .done( cb );
   });
 
-  it('should update a record', function( done ) {
+  it('updates a record', function( done ) {
 
     function verifycb( err, res ) {
       if (err) done( err );
@@ -409,13 +409,13 @@ describe('CRUD', function() {
       .done( updatecb );
   });
 
-  it('should update several records matching criteria');
+  it('updates several records matching criteria');
 });
 
 
 describe('Organisation', function() {
 
-  it('should limit results based on .limit( number )', function( done ) {
+  it('limits results based on .limit( number )', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -435,7 +435,7 @@ describe('Organisation', function() {
 
   });
 
-  it('should return an .offset( lastIndex ) of results', function( done ) {
+  it('returns an .offset( lastIndex ) of results', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -456,15 +456,15 @@ describe('Organisation', function() {
 
   });
 
-  it('should sort records ascending .sort( "asc" )');
+  it('sorts records ascending .sort( "asc" )');
 
-  it('should sort records descending .sort( "desc" )');
+  it('sorts records descending .sort( "desc" )');
 
 });
 
 describe('Constraints .where()', function() {
 
-  it('should support .is( val ) & .eq( val )', function(done) {
+  it('supports .is( val ) & .eq( val )', function(done) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -498,7 +498,7 @@ describe('Constraints .where()', function() {
 
   });
 
-  it('should support .in( array )', function( done ) {
+  it('supports .in( array )', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -517,7 +517,7 @@ describe('Constraints .where()', function() {
       .done( cb );
   });
 
-  it('should support .nin( array )', function( done ) {
+  it('supports .nin( array )', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -537,7 +537,7 @@ describe('Constraints .where()', function() {
       .done( cb );
   });
 
-  it('should support exclusion .neq( val ) & .not( val )', function( done ) {
+  it('supports exclusion .neq( val ) & .not( val )', function( done ) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -570,7 +570,7 @@ describe('Constraints .where()', function() {
       .done( cb );
   });
 
-  it('should support comparators .lt( val ) & .lte( val )', function(done) {
+  it('supports comparators .lt( val ) & .lte( val )', function(done) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -601,7 +601,7 @@ describe('Constraints .where()', function() {
 
   });
 
-  it('should support comparators .gt( val ) & .gte( val )', function(done) {
+  it('supports comparators .gt( val ) & .gte( val )', function(done) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -631,7 +631,7 @@ describe('Constraints .where()', function() {
       .done( cb );
   });
 
-  it('should compound constraints [eg. .is(x) .nin(y)]', function(done) {
+  it('compounds constraints [eg. .is(x) .nin(y)]', function(done) {
 
     function cb( err, res ) {
       if (err) done( err );
@@ -657,10 +657,10 @@ describe('Constraints .where()', function() {
 
 describe('Associations', function() {
 
-  it('should populate associated records with .include() :read');
+  it('populates associated records with .include() :read');
 
-  it('should update associate records on :update');
+  it('updates associate records on :update');
 
-  it('should destroy dependent records on .remove() :delete');
+  it('destroys dependent records on .remove() :delete');
 
 });
