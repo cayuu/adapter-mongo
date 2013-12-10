@@ -11,12 +11,13 @@
     "url": "https://github.com/mekanika/adapter/issues"
   },
   "dependencies": {
-    "mongodb": "~1.3.18",
-    "mekanika-adapter": "git+https://github.com/mekanika/adapter.git"
+    "mongodb": "~1.3.19",
+    "mekanika-adapter": "~0.1.0"
   },
   "devDependencies": {
-    "mocha": "~1.12.0",
-    "expect.js": "~0.2.0"
+    "mocha": "~1.15.1",
+    "expect.js": "~0.2.0",
+    "mekanika-query": "~0.2.0"
   },
   "scripts": {
     "test": "make test"
