@@ -1,7 +1,7 @@
 var expect = require('expect.js')
   , mongo = require('../lib/mongo.js')
   , utils = require('../lib/utils.js')
-  , query = require('../../query/lib/index');
+  , query = require('mekanika-query');
 
 
 // Bootstrap configures connections and ensures teardown of testDB
