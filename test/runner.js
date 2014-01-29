@@ -94,6 +94,13 @@ describe('adapter', function() {
 
     });
 
+    it('returns an error on an unknown query.action', function (done) {
+      mongo.exec( {action:'random.^_^'}, function (err, res) {
+        expect( err ).to.not.be.empty();
+        done();
+      });
+    });
+
   });
 
 
