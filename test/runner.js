@@ -109,6 +109,23 @@ describe('adapter', function() {
       });
     });
 
+    it('errors out if no connection can be built', function (done) {
+      var oport = mongo.configure().port;
+      mongo.configure({port:12345});
+
+      // Unplug. Then test bad connection.
+      mongo.disconnect( function(err) {
+
+        mongo.connect( function (err, db) {
+          expect( err ).to.be.ok();
+          // Reset port back to normal
+          mongo.configure( {port:oport} );
+          done();
+        });
+
+      });
+    });
+
     it('connects to an authenticated db');
 
     // This test uses DIRECT mongo adapter calls rather than the delegations
@@ -136,7 +153,7 @@ describe('adapter', function() {
 
         });
       });
-    })
+    });
 
     it('fails to .disconnect(cb) if no connection present', function(done) {
       mongo.disconnect( function(err) {
