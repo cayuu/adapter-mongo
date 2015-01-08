@@ -4,6 +4,7 @@
   "description": "Mongo adapter",
   "main": "index.js",
   "scripts": {
+    "lint": "jshint index.js test/",
     "test": "mocha -R spec test"
   },
   "repository": {
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "chai": "^1.10.0",
+    "jshint": "^2.5.11",
     "mekanika-query": "^0.8.0",
     "mocha": "^2.1.0"
   },
