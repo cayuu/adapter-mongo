@@ -1,27 +1,33 @@
 
 # adapter-mongo
 
-  Mongo adapter
+**WIP. Do not use**
 
-  **WIP. Do not use**
+> [Query envelope](https://github.com/mekanika/qe) adapter for **MongoDB**
 
-## Installation
+
+## Usage
 
   Not ready
 
-## API
-
 ## Tests
 
-  To run the tests:
+To run the **tests**:
 
-      make test
+    npm test
 
-  To generate coverage reports, install `istanbul` globally `$ npm install -g istanbul` and run:
+To **lint** the code:
 
-      make coverage
+    npm run lint
+
+To generate **coverage** reports:
+
+    npm run coverage
 
 
 ## License
 
-  MIT
+Copyright &copy; 2013-2015 Clint Walker
+
+Released under the **Mozilla Public License v2.0** ([MPLv2](http://mozilla.org/MPL/2.0/))
+

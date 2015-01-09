@@ -1,9 +1,10 @@
 {
   "name": "mekanika-adapter-mongo",
   "version": "0.0.0",
-  "description": "Mongo adapter",
+  "description": "Query envelope adapter for MongoDB",
   "main": "index.js",
   "scripts": {
+    "coverage": "istanbul cover _mocha",
     "lint": "jshint index.js test/",
     "test": "mocha -R spec test"
   },
@@ -20,9 +21,10 @@
   },
   "devDependencies": {
     "chai": "^1.10.0",
+    "istanbul": "^0.0.0",
     "jshint": "^2.5.11",
     "mekanika-query": "^0.8.0",
     "mocha": "^2.1.0"
   },
-  "license": "MIT"
+  "license": "MPL-2.0"
 }
