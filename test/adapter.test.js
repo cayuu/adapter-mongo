@@ -22,16 +22,15 @@ var create = function (body, cb) {
 };
 
 
-describe.only('CRUD', function () {
-
-  // Clear database
-  beforeEach( function (done) {
-    store.exec( query().remove().on(_ON).qe, function (err) {
-      if (err) throw err;
-      done();
-    });
+// Clear database
+beforeEach( function (done) {
+  store.exec( query().remove().on(_ON).qe, function (err) {
+    if (err) throw err;
+    done();
   });
+});
 
+describe('CRUD', function () {
   describe('create', function () {
     it('new record', function (done) {
       create( _FIXTURE.supers[0], function (err, res) {
@@ -166,16 +165,115 @@ describe('Update operators', function () {
 });
 
 describe('Match', function () {
+  var q;
+  beforeEach( function (done) {
+    q = query().find().on(_ON);
+    create( _FIXTURE.supers, function (err,res) {
+      records = res;
+      done();
+    });
+  });
   describe('Operators', function () {
-    it('eq');
-    it('neq');
-    it('in');
-    it('nin');
-    it('all');
-    it('gt');
-    it('gte');
-    it('lt');
-    it('lte');
+    it('eq', function (done) {
+      q.where('type').is('rogue');
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        res.map( function (el) {
+          expect(el.type).to.equal('rogue');
+        });
+        done();
+      });
+    });
+    it('neq', function (done) {
+      q.where('type').not('wizard');
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(3);
+        res.map( function (el) {
+          expect(el.type).to.not.equal('wizard');
+        });
+        done();
+      });
+    });
+    it('in', function (done) {
+      q.where('type').in(['wizard', 'fighter']);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        res.map( function (el) {
+          expect(el.type).to.not.equal('rogue');
+        });
+        done();
+      });
+    });
+    it('nin', function (done) {
+      q.where('type').nin(['wizard', 'fighter']);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        res.map( function (el) {
+          expect(el.type).to.not.equal('wizard');
+          expect(el.type).to.not.equal('fighter');
+        });
+        done();
+      });
+    });
+    it('all', function (done) {
+      q.where('extra').all(['a','b']);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(1);
+        res.map( function (el) {
+          expect(el.extra).to.include('a','b');
+        });
+        done();
+      });
+    });
+    it('gt', function (done) {
+      q.where('power').gt(8);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(1);
+        res.map( function (el) {
+          expect(el.power).to.be.gt(8);
+        });
+        done();
+      });
+    });
+    it('gte', function (done) {
+      q.where('power').gte(8);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        res.map( function (el) {
+          expect(el.power).to.be.gte(8);
+        });
+        done();
+      });
+    });
+    it('lt', function (done) {
+      q.where('power').lt(8);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        res.map( function (el) {
+          expect(el.power).to.be.lt(8);
+        });
+        done();
+      });
+    });
+    it('lte', function (done) {
+      q.where('power').lte(8);
+      store.exec( q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(3);
+        res.map( function (el) {
+          expect(el.power).to.be.lte(8);
+        });
+        done();
+      });
+    });
   });
 
   describe('on action', function () {
