@@ -276,16 +276,57 @@ describe('Match', function () {
     });
   });
 
-  describe('on action', function () {
-    it('find');
-    it('update');
-    it('remove');
-  });
-
   describe('complex', function () {
-    it('multiple conditions');
-    it('OR container');
-    it('nested matches');
+    it('multiple conditions', function (done) {
+      q.where('type').is('rogue').and('power').gt(5);
+      store.exec(q.qe, function (err,res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(1);
+        res.map(function(el) {
+          expect(el.type).to.equal('rogue');
+          expect(el.power).to.be.gt(5);
+        });
+        done();
+      });
+    });
+    it('OR container', function (done) {
+      q.where('type').is('rogue').or('power').gt(5);
+      store.exec(q.qe, function (err,res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(3);
+        res.map(function(el) {
+          if (el.type !== 'rogue') expect(el.power).to.be.gt(5);
+          else expect( el.type ).to.equal('rogue');
+        });
+        done();
+      });
+    });
+    it('nested matches', function (done) {
+      // Create MC manually because Query 0.8.0 bug: https://github.com/mekanika/query/issues/1
+      var manual = {
+        do:'find', on:'supers',
+        match: {or:[
+          {type:{eq:'wizard'}},
+          {and:[{speed:{gt:8}}, {power:{gt:5}}]}
+        ]}
+      };
+
+      q.where( query.mc().where('speed').gt(8).where('power').gte(5) )
+        .or('type').is('wizard');
+
+      store.exec(manual, function (err,res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        res.map(function(el) {
+          if (el.type !== 'wizard') {
+            if (el.speed < 9) expect(el.power).to.be.gt(5);
+            else expect(el.speed).to.be.gt(8);
+          }
+          else expect( el.type ).to.equal('wizard');
+        });
+        done();
+      });
+    });
   });
 });
 
