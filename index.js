@@ -140,7 +140,8 @@ var _mapOperators = function (match) {
 
   // Replace Query operators for Mongo operators
   for (var k in _map) {
-    str = str.replace( '{"'+k+'"', '{"'+_map[k]+'"');
+    var regex = new RegExp( '{"'+k+'"', 'g');
+    str = str.replace( regex, '{"'+_map[k]+'"');
   }
 
   return JSON.parse(str);
