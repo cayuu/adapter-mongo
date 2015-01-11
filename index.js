@@ -246,8 +246,12 @@ adapter.find = function (qe, cb) {
 
   var projection = setProjection( qe.select );
 
-  this.db
+  var request = this.db
     .collection( qe.on )
-    .find( sel, projection )
-    .toArray( cb );
+    .find( sel, projection );
+
+
+  if (qe.limit) request.limit( qe.limit );
+
+  request.toArray( cb );
 };

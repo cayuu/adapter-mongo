@@ -369,7 +369,23 @@ describe('Select', function () {
   });
 
   describe('Limits', function () {
-    it('on find');
+    var q;
+    beforeEach( function (done) {
+      q = query().find().on(_ON);
+      create( _FIXTURE.supers, function (err,res) {
+        records = res;
+        done();
+      });
+    });
+    it('on find', function (done) {
+      q.limit(2);
+      store.exec(q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(2);
+        expect(res[0].handle).to.equal('Drzzt');
+        done();
+      });
+    });
   });
 
   describe('Offset', function () {
