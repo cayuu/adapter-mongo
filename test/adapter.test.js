@@ -337,10 +337,36 @@ describe('Populate', function () {
 });
 
 describe('Select', function () {
-  it('whitelists fields', function () {
 
+  var q;
+  beforeEach( function (done) {
+    q = query().find().on(_ON);
+    create( _FIXTURE.supers, function (err,res) {
+      records = res;
+      done();
+    });
   });
-  it('blacklists fields');
+
+  it('whitelists fields', function (done) {
+    q.where('handle','Drzzt').select('handle power');
+    store.exec(q.qe, function (err, res) {
+      expect(err).to.not.be.ok;
+      expect(res[0].handle).to.equal('Drzzt');
+      expect(res[0]).to.not.include.key('speed');
+      done();
+    });
+  });
+  it('blacklists fields', function (done) {
+    q.where('handle','Drzzt').select('-speed -power');
+    store.exec(q.qe, function (err, res) {
+      expect(err).to.not.be.ok;
+      expect(res[0].handle).to.equal('Drzzt');
+      expect(res[0]).to.include.key('type');
+      expect(res[0]).to.not.include.key('speed');
+      expect(res[0]).to.not.include.key('power');
+      done();
+    });
+  });
 
   describe('Limits', function () {
     it('on find');
