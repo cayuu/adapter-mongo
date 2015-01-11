@@ -252,6 +252,9 @@ adapter.find = function (qe, cb) {
 
 
   if (qe.limit) request.limit( qe.limit );
+  if (qe.offset) {
+    if (typeof qe.offset === 'number') request.skip( qe.offset );
+  }
 
   request.toArray( cb );
 };

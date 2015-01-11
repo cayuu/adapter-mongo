@@ -389,6 +389,22 @@ describe('Select', function () {
   });
 
   describe('Offset', function () {
-    it('by number');
+    var q;
+    beforeEach( function (done) {
+      q = query().find().on(_ON);
+      create( _FIXTURE.supers, function (err,res) {
+        records = res;
+        done();
+      });
+    });
+    it('by number', function (done) {
+      q.offset(3);
+      store.exec(q.qe, function (err, res) {
+        expect(err).to.not.be.ok;
+        expect(res).to.have.length(1);
+        expect(res[0].handle).to.equal('Joe');
+        done();
+      });
+    });
   });
 });
