@@ -176,23 +176,51 @@ var selectorFromQe = function (qe) {
   eg: ['-name','-age'] => {name:0, age:0}
 
   @param {String[]} arr Array of string selectors
+  @param {Number} [negValue] The value to apply to 'negative' keys (default:0)
 
   @return {Object} Mongo projection map
 */
 
-var setProjection = function (arr) {
+var setProjection = function (arr, negValue) {
   if (!arr) return {};
+  if (typeof negValue === 'undefined') negValue = 0;
 
   var ret = {};
 
   arr.forEach( function (s) {
     s[0] === '-'
-      ? ret[ s.slice(1) ] = 0
+      ? ret[ s.slice(1) ] = negValue
       : ret[s] = 1;
   });
 
   return ret;
 };
+
+
+/**
+  Generates a Mongo 'sort' object
+  Uses almost the same code as 'setProjection' but passes '-1' sort direction
+  as the value to apply to the key when "negative"
+
+  @param {String[]} arr Array of string keys (optionally prefixed with '-')
+  @return {Object} Mongo sort object
+*/
+
+var setSort = function (arr) {
+  return setProjection( arr, -1 );
+};
+
+var agg = function (qe, match, projection) {
+  console.log(sel);
+
+  var ret = [];
+  ret.push( {$match:match} );
+
+  if (qe.sort) ret.push( {$sort: setSort(qe.sort)} );
+  if (qe.limit) ret.push( {$limit:qe.limit} );
+
+  return ret;
+}
 
 
 /**
@@ -250,7 +278,9 @@ adapter.find = function (qe, cb) {
     .collection( qe.on )
     .find( sel, projection );
 
-
+  if (qe.sort) request.sort( setSort(qe.sort) );
+  // Limits and offsets need to happen AFTER a sort (or you'll end up sorting
+  // on a limited set of results)
   if (qe.limit) request.limit( qe.limit );
   if (qe.offset) {
     if (typeof qe.offset === 'number') request.skip( qe.offset );

@@ -368,6 +368,37 @@ describe('Select', function () {
     });
   });
 
+  describe('Sort', function () {
+    it('by field (ascending)', function (done) {
+      q.sort('power');
+      store.exec(q.qe, function (err,res) {
+        expect(err).to.not.be.ok;
+        expect(res[0].power).to.equal(2);
+        expect(res[3].power).to.equal(15);
+        done();
+      });
+    });
+    it('by field (descending)', function (done) {
+      q.sort('-power');
+      store.exec(q.qe, function (err,res) {
+        expect(err).to.not.be.ok;
+        expect(res[0].power).to.equal(15);
+        expect(res[3].power).to.equal(2);
+        done();
+      });
+    });
+    it('by multiple fields', function (done) {
+      // Sorts on type first.
+      // Usually rogue Drzzt (power 5) comes up first (as his id comes first).
+      // Reverse sort on power and test that the other roge (power 8) comes 1st.
+      q.sort('type -power');
+      store.exec( q.qe, function (err, res) {
+        expect(res[1].power).to.equal(8);
+        done();
+      });
+    });
+  });
+
   describe('Limits', function () {
     var q;
     beforeEach( function (done) {
