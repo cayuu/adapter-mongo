@@ -343,6 +343,7 @@ adapter.update = function (qe, cb) {
     var mq = {};
 
     // Currently only supports providing a SINGLE body element
+    /* istanbul ignore else */
     if (qe.body) {
       mq['$set'] = qe.body[0];
     }
@@ -392,6 +393,7 @@ adapter.find = function (qe, cb) {
   // on a limited set of results)
   if (qe.limit) request.limit( qe.limit );
   if (qe.offset) {
+    /* istanbul ignore else */
     if (typeof qe.offset === 'number') request.skip( qe.offset );
   }
 
