@@ -220,14 +220,16 @@ var setSort = function (arr) {
 
   @param {Mixed} res Usually an Array of documents
   @param {String} [key] The key of the document collection (`Qe.on`)
+  @param {Object} [linked] Object hash {<field>:[results]} of relation data
 
   @return {Object} A compliant object response payload
 */
 
-var toReplyFormat = function (res, key) {
+var toReplyFormat = function (res, key, linked) {
   key || (key = 'data');
   var ret = {};
   ret[ key ] = res;
+  if (linked) ret.linked = linked;
   return ret;
 };
 
