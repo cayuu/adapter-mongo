@@ -210,17 +210,26 @@ var setSort = function (arr) {
   return setProjection( arr, -1 );
 };
 
-var agg = function (qe, match, projection) {
-  console.log(sel);
 
-  var ret = [];
-  ret.push( {$match:match} );
 
-  if (qe.sort) ret.push( {$sort: setSort(qe.sort)} );
-  if (qe.limit) ret.push( {$limit:qe.limit} );
 
+/**
+  Generates a compliant response payload from `res` and `key`
+
+  @todo Return a function with bound values for `on` and `cb`
+
+  @param {Mixed} res Usually an Array of documents
+  @param {String} [key] The key of the document collection (`Qe.on`)
+
+  @return {Object} A compliant object response payload
+*/
+
+var toReplyFormat = function (res, key) {
+  key || (key = 'data');
+  var ret = {};
+  ret[ key ] = res;
   return ret;
-}
+};
 
 
 /**
@@ -230,7 +239,12 @@ var agg = function (qe, match, projection) {
 adapter.create = function (qe, cb) {
   this.db
     .collection( qe.on )
-    .insert( qe.body, {}, cb );
+    .insert( qe.body, {}, function (err,res) {
+      // @todo These repeated sections could be factored into a partial
+      // that returns a function with values set for `on` and `cb`
+      if (err) return cb(err);
+      cb(null, toReplyFormat(res,qe.on));
+    });
 };
 
 adapter.update = function (qe, cb) {
@@ -256,7 +270,12 @@ adapter.update = function (qe, cb) {
   var mq = buildMongoQuery(qe);
   this.db
     .collection( qe.on )
-    .update( sel, mq, opts, cb );
+    .update( sel, mq, opts, function (err,res) {
+      // @todo These repeated sections could be factored into a partial
+      // that returns a function with values set for `on` and `cb`
+      if (err) return cb(err);
+      cb(null, toReplyFormat(res,qe.on));
+    });
 };
 
 adapter.remove = function (qe, cb) {
@@ -266,7 +285,12 @@ adapter.remove = function (qe, cb) {
 
   this.db
     .collection( qe.on )
-    .remove( sel, opts, cb );
+    .remove( sel, opts, function (err,res) {
+      // @todo These repeated sections could be factored into a partial
+      // that returns a function with values set for `on` and `cb`
+      if (err) return cb(err);
+      cb(null, toReplyFormat(res,qe.on));
+    });
 };
 
 adapter.find = function (qe, cb) {
@@ -286,5 +310,11 @@ adapter.find = function (qe, cb) {
     if (typeof qe.offset === 'number') request.skip( qe.offset );
   }
 
-  request.toArray( cb );
+  // If no 'populate' directive, return results
+  if (!qe.populate) return request.toArray(function (err,res) {
+    // @todo These repeated sections could be factored into a partial
+    // that returns a function with values set for `on` and `cb`
+    if (err) return cb(err);
+    cb(null, toReplyFormat(res,qe.on));
+  });
 };

@@ -35,8 +35,8 @@ describe('CRUD', function () {
     it('new record', function (done) {
       create( _FIXTURE.supers[0], function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length[1];
-        expect( res[0].pk ).to.equal('1');
+        expect(res.supers).to.have.length[1];
+        expect( res.supers[0].pk ).to.equal('1');
         done();
       });
     });
@@ -48,12 +48,12 @@ describe('CRUD', function () {
         create( _FIXTURE.supers, function (err, res) {
           // Update the first record's power to 7 (a unique value we can check)
           var q = query().update().on(_ON).body({power:7});
-          q.qe.ids = [res[0]._id.toString()];
+          q.qe.ids = [res.supers[0]._id.toString()];
           store.exec( q.qe, function (err, res) {
             expect( err ).to.not.be.ok;
             // Check that our record updated correctly
             store.exec( {do:'find', on:'supers', ids:q.qe.ids}, function (err, res) {
-              expect( res[0].power ).to.equal(7);
+              expect( res.supers[0].power ).to.equal(7);
               done();
             });
           });
@@ -66,9 +66,9 @@ describe('CRUD', function () {
             expect(err).to.not.be.ok;
 
             store.exec( query().find().on(_ON).where('type','rogue').qe, function (err,res) {
-              expect( res ).to.have.length(0);
+              expect( res.supers ).to.have.length(0);
               store.exec(query().find().on(_ON).where('type','ghost').qe, function (err, res) {
-                expect( res ).to.have.length(2);
+                expect( res.supers ).to.have.length(2);
                 done();
               });
             });
@@ -88,12 +88,12 @@ describe('CRUD', function () {
       });
     });
     it('by id', function (done) {
-      var id = _created[0]._id.toString();
+      var id = _created.supers[0]._id.toString();
       var q = query().on(_ON).find( id );
       store.exec( q.qe, function (err, res) {
         expect( err ).to.not.be.ok;
-        expect( res ).to.have.length(1);
-        expect( res[0]._id.toString() ).to.equal( id );
+        expect( res.supers ).to.have.length(1);
+        expect( res.supers[0]._id.toString() ).to.equal( id );
         done();
       });
     });
@@ -101,22 +101,22 @@ describe('CRUD', function () {
       var q = query().on(_ON).find().where('handle').is('Pug');
       store.exec( q.qe, function (err, res) {
         expect( err ).to.not.be.ok;
-        expect( res ).to.have.length(1);
-        expect( res[0].handle ).to.equal('Pug');
+        expect( res.supers ).to.have.length(1);
+        expect( res.supers[0].handle ).to.equal('Pug');
         done();
       });
     });
     it('match within ids', function (done) {
       var ids = [
-        _created[0]._id.toString(),
-        _created[1]._id.toString(),
-        _created[2]._id.toString()
+        _created.supers[0]._id.toString(),
+        _created.supers[1]._id.toString(),
+        _created.supers[2]._id.toString()
       ];
       var q = query().on(_ON).find(ids).where('type').is('rogue');
       store.exec( q.qe, function (err, res) {
         expect( err ).to.not.be.ok;
-        expect( res ).to.have.length(1);
-        expect( res[0].handle ).to.equal('Drzzt');
+        expect( res.supers ).to.have.length(1);
+        expect( res.supers[0].handle ).to.equal('Drzzt');
         done();
       });
     });
@@ -131,14 +131,14 @@ describe('CRUD', function () {
       });
     });
     it('by ids', function (done) {
-      var id = records[0]._id.toString();
+      var id = records.supers[0]._id.toString();
       var q = query().remove( id ).on(_ON);
       store.exec( q.qe, function (err,res) {
         expect(err).to.not.be.ok;
         q = query().find().on(_ON);
         q.qe.ids = [id];
         store.exec( q.qe, function (err, res) {
-          expect( res ).to.have.length(0);
+          expect( res.supers ).to.have.length(0);
           done();
         });
       });
@@ -149,7 +149,7 @@ describe('CRUD', function () {
         expect( err ).to.not.be.ok;
         q = query().find().on(_ON).where('type','rogue');
         store.exec( q.qe, function (err,res) {
-          expect( res ).to.have.length(0);
+          expect( res.supers ).to.have.length(0);
           done();
         });
       });
@@ -178,8 +178,8 @@ describe('Match', function () {
       q.where('type').is('rogue');
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(2);
+        res.supers.map( function (el) {
           expect(el.type).to.equal('rogue');
         });
         done();
@@ -189,8 +189,8 @@ describe('Match', function () {
       q.where('type').not('wizard');
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(3);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(3);
+        res.supers.map( function (el) {
           expect(el.type).to.not.equal('wizard');
         });
         done();
@@ -200,8 +200,8 @@ describe('Match', function () {
       q.where('type').in(['wizard', 'fighter']);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(2);
+        res.supers.map( function (el) {
           expect(el.type).to.not.equal('rogue');
         });
         done();
@@ -211,8 +211,8 @@ describe('Match', function () {
       q.where('type').nin(['wizard', 'fighter']);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(2);
+        res.supers.map( function (el) {
           expect(el.type).to.not.equal('wizard');
           expect(el.type).to.not.equal('fighter');
         });
@@ -223,8 +223,8 @@ describe('Match', function () {
       q.where('extra').all(['a','b']);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(1);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(1);
+        res.supers.map( function (el) {
           expect(el.extra).to.include('a','b');
         });
         done();
@@ -234,8 +234,8 @@ describe('Match', function () {
       q.where('power').gt(8);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(1);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(1);
+        res.supers.map( function (el) {
           expect(el.power).to.be.gt(8);
         });
         done();
@@ -245,8 +245,8 @@ describe('Match', function () {
       q.where('power').gte(8);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(2);
+        res.supers.map( function (el) {
           expect(el.power).to.be.gte(8);
         });
         done();
@@ -256,8 +256,8 @@ describe('Match', function () {
       q.where('power').lt(8);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(2);
+        res.supers.map( function (el) {
           expect(el.power).to.be.lt(8);
         });
         done();
@@ -267,8 +267,8 @@ describe('Match', function () {
       q.where('power').lte(8);
       store.exec( q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(3);
-        res.map( function (el) {
+        expect(res.supers).to.have.length(3);
+        res.supers.map( function (el) {
           expect(el.power).to.be.lte(8);
         });
         done();
@@ -281,8 +281,8 @@ describe('Match', function () {
       q.where('type').is('rogue').and('power').gt(5);
       store.exec(q.qe, function (err,res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(1);
-        res.map(function(el) {
+        expect(res.supers).to.have.length(1);
+        res.supers.map(function(el) {
           expect(el.type).to.equal('rogue');
           expect(el.power).to.be.gt(5);
         });
@@ -293,8 +293,8 @@ describe('Match', function () {
       q.where('type').is('rogue').or('power').gt(5);
       store.exec(q.qe, function (err,res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(3);
-        res.map(function(el) {
+        expect(res.supers).to.have.length(3);
+        res.supers.map(function(el) {
           if (el.type !== 'rogue') expect(el.power).to.be.gt(5);
           else expect( el.type ).to.equal('rogue');
         });
@@ -316,8 +316,8 @@ describe('Match', function () {
 
       store.exec(manual, function (err,res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        res.map(function(el) {
+        expect(res.supers).to.have.length(2);
+        res.supers.map(function(el) {
           if (el.type !== 'wizard') {
             if (el.speed < 9) expect(el.power).to.be.gt(5);
             else expect(el.speed).to.be.gt(8);
@@ -351,8 +351,8 @@ describe('Select', function () {
     q.where('handle','Drzzt').select('handle power');
     store.exec(q.qe, function (err, res) {
       expect(err).to.not.be.ok;
-      expect(res[0].handle).to.equal('Drzzt');
-      expect(res[0]).to.not.include.key('speed');
+      expect(res.supers[0].handle).to.equal('Drzzt');
+      expect(res.supers[0]).to.not.include.key('speed');
       done();
     });
   });
@@ -360,10 +360,10 @@ describe('Select', function () {
     q.where('handle','Drzzt').select('-speed -power');
     store.exec(q.qe, function (err, res) {
       expect(err).to.not.be.ok;
-      expect(res[0].handle).to.equal('Drzzt');
-      expect(res[0]).to.include.key('type');
-      expect(res[0]).to.not.include.key('speed');
-      expect(res[0]).to.not.include.key('power');
+      expect(res.supers[0].handle).to.equal('Drzzt');
+      expect(res.supers[0]).to.include.key('type');
+      expect(res.supers[0]).to.not.include.key('speed');
+      expect(res.supers[0]).to.not.include.key('power');
       done();
     });
   });
@@ -373,8 +373,8 @@ describe('Select', function () {
       q.sort('power');
       store.exec(q.qe, function (err,res) {
         expect(err).to.not.be.ok;
-        expect(res[0].power).to.equal(2);
-        expect(res[3].power).to.equal(15);
+        expect(res.supers[0].power).to.equal(2);
+        expect(res.supers[3].power).to.equal(15);
         done();
       });
     });
@@ -382,8 +382,8 @@ describe('Select', function () {
       q.sort('-power');
       store.exec(q.qe, function (err,res) {
         expect(err).to.not.be.ok;
-        expect(res[0].power).to.equal(15);
-        expect(res[3].power).to.equal(2);
+        expect(res.supers[0].power).to.equal(15);
+        expect(res.supers[3].power).to.equal(2);
         done();
       });
     });
@@ -393,7 +393,7 @@ describe('Select', function () {
       // Reverse sort on power and test that the other roge (power 8) comes 1st.
       q.sort('type -power');
       store.exec( q.qe, function (err, res) {
-        expect(res[1].power).to.equal(8);
+        expect(res.supers[1].power).to.equal(8);
         done();
       });
     });
@@ -412,8 +412,8 @@ describe('Select', function () {
       q.limit(2);
       store.exec(q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(2);
-        expect(res[0].handle).to.equal('Drzzt');
+        expect(res.supers).to.have.length(2);
+        expect(res.supers[0].handle).to.equal('Drzzt');
         done();
       });
     });
@@ -432,8 +432,8 @@ describe('Select', function () {
       q.offset(3);
       store.exec(q.qe, function (err, res) {
         expect(err).to.not.be.ok;
-        expect(res).to.have.length(1);
-        expect(res[0].handle).to.equal('Joe');
+        expect(res.supers).to.have.length(1);
+        expect(res.supers[0].handle).to.equal('Joe');
         done();
       });
     });
