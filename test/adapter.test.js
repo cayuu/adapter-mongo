@@ -203,7 +203,24 @@ describe('Update operators', function () {
       });
     });
   });
-  it('pull (array)');
+  it('pull (array)', function (done) {
+    q.pull('extra',['a','b']).where('handle', 'Drzzt');
+    store.exec( q.qe, function (e,r) {
+      store.exec(query().find().on('supers').where('handle','Drzzt').qe, function (e,r){
+        expect(r.supers[0].extra).to.have.length(0);
+        done();
+      });
+    });
+  });
+  it('pull (scalar)', function (done) {
+    q.pull('extra', 'b').where('handle', 'Drzzt');
+    store.exec( q.qe, function (e,r) {
+      store.exec(query().find().on('supers').where('handle','Drzzt').qe, function (e,r) {
+        expect( r.supers[0].extra ).to.not.contain('b');
+        done();
+      });
+    });
+  });
 });
 
 describe('Match', function () {
