@@ -158,7 +158,31 @@ describe('CRUD', function () {
 });
 
 describe('Update operators', function () {
-  it('inc');
+  var q;
+  beforeEach( function (done) {
+    q = query().update().on('supers');
+    create( _FIXTURE.supers, function (err,res) {
+      records = res;
+      done();
+    });
+  });
+  afterEach( function (done) {
+    store.exec(query().remove().on('supers').qe, done );
+  });
+  it('inc', function (done) {
+    q.inc('power', 100).where('handle','Pug');
+    store.exec(q.qe, function (e,r) {
+      expect( e ).to.not.be.ok;
+
+      // Go find the updated record to be sure it has applied
+      store.exec( query().find().on('supers').where('power').gt(100).qe, function (e,r) {
+        expect( r.supers ).to.have.length(1);
+        expect( r.supers[0].handle ).to.equal('Pug');
+        done();
+      });
+
+    });
+  });
   it('push (array)');
   it('push (scalar)');
   it('pull (array)');

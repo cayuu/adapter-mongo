@@ -319,6 +319,36 @@ var toReplyFormat = function (res, key, linked) {
 
 
 /**
+  Creates a Mongo 'update operator' hash
+
+  @param {Object[]} updates An array of Qe update operators
+
+  @return {Object} A Mongo formatted update operator object
+*/
+
+var buildUpdateOperator = function (updates) {
+  var ret = {};
+
+  // Return first key in o
+  var fk = function (o) { for (var k in o) { return k; } };
+  // Create a single key object {k:v}
+  var oo = function (k,v) { var o = {}; o[k] = v; return o; };
+
+  var len = updates.length;
+  while (len--) {
+    var updt = updates[len];
+    for (var k in updt) {
+      var op = fk(updt[k]), v = updt[k][op];
+      ret['$'+op] || (ret[ '$'+op ] = oo(k,v));
+    }
+  }
+
+  return ret;
+};
+
+
+
+/**
   CRUDL
 */
 
@@ -342,11 +372,15 @@ adapter.update = function (qe, cb) {
   var buildMongoQuery = function (qe) {
     var mq = {};
 
+    // Overwrites `mq`
+    if (qe.updates) mq = buildUpdateOperator(qe.updates);
+
     // Currently only supports providing a SINGLE body element
     /* istanbul ignore else */
     if (qe.body) {
       mq['$set'] = qe.body[0];
     }
+
     return mq;
   };
 
