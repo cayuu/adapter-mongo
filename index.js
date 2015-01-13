@@ -212,6 +212,35 @@ var setSort = function (arr) {
 
 
 
+/**
+  Generate a hash of keyed arrays containing the identifiers to lookup.
+
+  @param {String[]} keys A list of fields to inspect on each doc in `docs`
+  @param {Object[]} docs Array of documents to inspect
+
+  @return {Object} An object hash of `keys` with arrays of identifiers to lookup
+*/
+
+var buildLinkedHash = function(keys, docs) {
+  var ret = {};
+  keys.forEach(function (k) { ret[k] = []; });
+  var len = docs.length;
+  var counter = 0;
+  while (len--) {
+    counter++;
+    // Iterate each key to build lookup table per document
+    var klen = keys.length;
+    while(klen--) {
+      counter++;
+      var key = keys[klen];
+      // Mongo does not require unique keys, so it's permitted to add all
+      ret[key].push.apply(ret[key], docs[len][key]);
+    }
+  }
+  return ret;
+};
+
+
 
 /**
   Generates a compliant response payload from `res` and `key`
