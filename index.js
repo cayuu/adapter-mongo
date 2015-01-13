@@ -241,6 +241,61 @@ var buildLinkedHash = function(keys, docs) {
 };
 
 
+/**
+  Retrieves linked data based on the `qe.populate` fields for a given set
+  of documents `docs`.
+
+  @param {QueryEnvelope} qe The Qe containing a `.populate` field
+  @param {Array} docs The list of documents to load relation data from
+  @param {MongoConnection} db The connection to the mongoDB
+  @param {Function} cb The adapter callback to execute on completion
+  @param {Adapter} self A reference to this instance of the adapter
+
+  @private
+*/
+
+var getLinkedData = function (qe, docs, db, cb, self) {
+  var populate = qe.populate;
+  var keys = Object.keys(populate);
+
+  // -- Build lookup table
+  var linked = buildLinkedHash(keys, docs);
+
+  // -- Perform lookups
+  var toDone = keys.length;
+  var onDone = function () {
+    cb(null, toReplyFormat(docs, qe.on, linked) );
+  };
+  for (var i=0; i<keys.length; i++) {
+    var field = keys[i], pop = qe.populate[field];
+    var nq = pop.query || {on:field};
+
+    // Build new query for linked data
+    if (pop.key) {
+      var mo = {};
+      mo[pop.key] = {in: linked[field]};
+      if (nq.match) {
+        if (nq.match.and) nq.match.and.push(mo);
+        else nq.match = {and:[mo, nq.match]};
+      }
+      else nq.match = {and:[mo]};
+    }
+    else nq.ids = linked[field];
+
+    // Required to keep an internal reference to `field` and `nq.on`
+    /*jshint loopfunc: true */
+    (function (field, remoteKey) {
+
+      self.find( nq, function (e,r) {
+        if (e) { toDone = -1; return cb(err); }
+        linked[field] = r[remoteKey];
+        if (!--toDone) onDone();
+      });
+
+    })(field, nq.on);
+  }
+};
+
 
 /**
   Generates a compliant response payload from `res` and `key`
@@ -326,7 +381,6 @@ adapter.remove = function (qe, cb) {
 
 adapter.find = function (qe, cb) {
   var sel = selectorFromQe( qe );
-
   var projection = setProjection( qe.select );
 
   var request = this.db
@@ -342,10 +396,19 @@ adapter.find = function (qe, cb) {
   }
 
   // If no 'populate' directive, return results
-  if (!qe.populate) return request.toArray(function (err,res) {
-    // @todo These repeated sections could be factored into a partial
-    // that returns a function with values set for `on` and `cb`
+  if (!qe.populate) {
+    return request.toArray(function (err,res) {
+      // @todo These repeated sections could be factored into a partial
+      // that returns a function with values set for `on` and `cb`
+      if (err) return cb(err);
+      cb(null, toReplyFormat(res,qe.on));
+    });
+  }
+
+  // Handle Populate directives
+  var self = this;
+  request.toArray( function (err,docs) {
     if (err) return cb(err);
-    cb(null, toReplyFormat(res,qe.on));
+    getLinkedData(qe, docs, self.db, cb, self);
   });
 };

@@ -330,14 +330,106 @@ describe('Match', function () {
   });
 });
 
+
+var _db = {
+  'supers': [
+    {pk:1, handle:'Drzzt', type:'rogue', power:5, speed:12, extra:['a','b']},
+    {pk:2, handle:'Pug', type:'wizard', kicks:[1,3], tags:[1,3], powers:[1]},
+    {pk:3, handle:'Bruce', type:'fighter', kicks:[], tags:[2], powers:[]},
+    {pk:4, handle:'Joe', type:'rogue', kicks:[2,3], tags:[], powers:[2]}
+  ],
+  // Resource name matches field name, pks as 'pk'
+  'tags': [
+    {pk:1, body:'pro'},
+    {pk:2, body:'noob'},
+    {pk:3, body:'deadly'}
+  ],
+  // Alternatively named resource
+  'sidekicks': [
+    {pk:1, workswith:[2], name:'Gir', skill:-3},
+    {pk:2, workswith:[4], name:'Pop', skill:2},
+    {pk:3, workswith:[2,4],name:'Moo', skill:5000}
+  ],
+  // Alternatively named ids
+  'powers': [
+    {power_id:1, name:'magic'},
+    {power_id:2, name:'lockpick'}
+  ]
+};
+
 describe('Populate', function () {
-  it('from keys only');
-  it('based on Qe');
-  it('with foreign key');
+  var q;
+  beforeEach( function (done) {
+    store.exec(query().on('supers').create().body(_db.supers).qe, function () {
+      store.exec(query().on('sidekicks').create().body(_db.sidekicks).qe, function () {
+        store.exec(query().on('tags').create().body(_db.tags).qe, function () {
+          store.exec(query().on('powers').create().body(_db.powers).qe, function () {
+            done();
+          });
+        });
+      });
+    });
+  });
+  afterEach(function (done) {
+    store.exec( query().on('supers').remove().qe, function () {
+      store.exec( query().on('sidekicks').remove().qe, function () {
+        store.exec( query().on('tags').remove().qe, function () {
+          store.exec( query().on('powers').remove().qe, function () {
+            done();
+          });
+        });
+      });
+    });
+  });
+  it('from keys only', function (done) {
+    // First reset the keys to whatever the internal DB keys are:
+    var q = query().find().on('tags').where('pk').in([1,3]);
+    store.exec(q.qe, function (e,r) {
+      var ids = [];
+      r.tags.forEach(function(el) { ids.push(el._id.toString()); });
+      q = query().update().on('supers').where('handle', 'Bruce').body({tags:ids});
+      store.exec(q.qe, function (e,r) {
+
+        // Now query with populate on raw key identifiers
+        q = query().find().on('supers')
+          .where('handle', 'Bruce')
+          .populate('tags');
+
+        store.exec( q.qe, function (e,r) {
+          expect( r.linked.tags ).to.have.length(2);
+          expect( r.linked.tags[0].body ).to.equal('pro');
+          done();
+        });
+
+      });
+
+    });
+  });
+  it('with foreign key', function (done) {
+    var qe = query().find().on('supers')
+      .where('handle').is('Pug')
+      .populate('tags', 'pk').qe;
+    store.exec(qe, function (err,res) {
+      expect(err).to.not.be.ok;
+      expect(res.linked.tags).to.have.length(2);
+      done();
+    });
+  });
+  it('based on Qe', function (done) {
+    var qe = query().find().on('supers')
+      .where('handle').is('Pug')
+      .populate('kicks','pk',{on:'sidekicks',select:['name']}).qe;
+    store.exec(qe, function (err,res) {
+      expect(err).to.not.be.ok;
+      expect(res.linked.kicks).to.have.length(2);
+      expect(res.linked.kicks[0]).to.not.have.key('skill');
+      expect(res.linked.kicks[0].name).to.equal('Gir');
+      done();
+    });
+  });
 });
 
 describe('Select', function () {
-
   var q;
   beforeEach( function (done) {
     q = query().find().on(_ON);
@@ -346,7 +438,6 @@ describe('Select', function () {
       done();
     });
   });
-
   it('whitelists fields', function (done) {
     q.where('handle','Drzzt').select('handle power');
     store.exec(q.qe, function (err, res) {
