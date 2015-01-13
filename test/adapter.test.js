@@ -170,7 +170,7 @@ describe('Update operators', function () {
     store.exec(query().remove().on('supers').qe, done );
   });
   it('inc', function (done) {
-    q.inc('power', 100).where('handle','Pug');
+    q.inc('power', 100).inc('speed', -3).where('handle','Pug');
     store.exec(q.qe, function (e,r) {
       expect( e ).to.not.be.ok;
 
@@ -178,6 +178,7 @@ describe('Update operators', function () {
       store.exec( query().find().on('supers').where('power').gt(100).qe, function (e,r) {
         expect( r.supers ).to.have.length(1);
         expect( r.supers[0].handle ).to.equal('Pug');
+        expect( r.supers[0].speed ).to.equal(2);
         done();
       });
 
