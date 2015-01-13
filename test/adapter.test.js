@@ -183,8 +183,26 @@ describe('Update operators', function () {
 
     });
   });
-  it('push (array)');
-  it('push (scalar)');
+  it('push (array)', function (done) {
+    q.push('extra',['k','c','d']).where('handle', 'Drzzt');
+    store.exec( q.qe, function (e,r) {
+      store.exec(query().find().on('supers').where('handle','Drzzt').qe, function (e,r){
+        expect(r.supers[0].extra).to.have.length(5);
+        expect(r.supers[0].extra).to.contain('k','c','d');
+        done();
+      });
+    });
+  });
+  it('push (scalar)', function (done) {
+    q.push('extra','x').where('handle', 'Drzzt');
+    store.exec( q.qe, function (e,r) {
+      store.exec(query().find().on('supers').where('handle','Drzzt').qe, function (e,r){
+        expect(r.supers[0].extra).to.have.length(3);
+        expect(r.supers[0].extra).to.contain('x');
+        done();
+      });
+    });
+  });
   it('pull (array)');
 });
 

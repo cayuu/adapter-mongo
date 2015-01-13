@@ -339,6 +339,8 @@ var buildUpdateOperator = function (updates) {
     var updt = updates[len];
     for (var k in updt) {
       var op = fk(updt[k]), v = updt[k][op];
+      // Enable array values to each be added
+      if (v instanceof Array) v = {$each: v};
       ret['$'+op] || (ret[ '$'+op ] = oo(k,v));
     }
   }
