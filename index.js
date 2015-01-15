@@ -107,6 +107,7 @@ adapter.connect = function (cb) {
 
     self.CONNECTED = true;
     self.db = db;
+    db.on( 'close', function(){ self.CONNECTED = false; });
 
     while (_queue.length) {
       var q = _queue.shift();
