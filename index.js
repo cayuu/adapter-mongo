@@ -55,6 +55,17 @@ var _spawning = false;
 
 
 /**
+  Adapter configuration
+*/
+
+var cfg = adapter.config = {
+  host: '127.0.0.1',
+  port: '27017',
+  db: 'test'
+};
+
+
+/**
   Adapter interface
 */
 
@@ -83,7 +94,7 @@ adapter.connect = function (cb) {
 
   var self = this;
 
-  var url = 'mongodb://127.0.0.1:27017/test';
+  var url = 'mongodb://'+cfg.host+':'+cfg.port+'/'+cfg.db;
 
   // STATE EVIL
   _spawning = true;
