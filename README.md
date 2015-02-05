@@ -8,7 +8,28 @@
 
 ## Usage
 
-  Not ready
+Require the adapter:
+
+```js
+var adapter = require('mekanika-adapter-mongo');
+```
+
+Then specify your MongoDB config:
+
+```js
+adapter.config.host = '127.0.0.1';
+adapter.config.port = '27017';
+adapter.config.db = 'test';
+```
+
+And pass Query envelopes to the `.exec(qe, cb)` method:
+
+```js
+adapter.exec({do:'find',on:'users'}, myCallback );
+```
+
+The function `myCallback` will be passed `(error, results)` as parameters on completion of the adapter execution. In the case of no errors, `error` will equal `null`.
+
 
 ## Tests
 
