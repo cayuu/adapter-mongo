@@ -324,7 +324,7 @@ var getLinkedData = function (qe, docs, db, cb, self) {
 var toReplyFormat = function (res, key, linked) {
   key || (key = 'data');
   var ret = {};
-  ret[ key ] = res;
+  ret[ key ] = mapIDs( res );
   if (linked) ret.linked = linked;
   return ret;
 };
@@ -365,6 +365,18 @@ var buildUpdateOperator = function (updates) {
 };
 
 
+/**
+  Converts Mongo _id {ObjectID} on collection objects to a String
+
+  @param {Object[]} col The collection to map
+*/
+
+var mapIDs = function (col) {
+  for (var i=0; i < col.length; i++) {
+    col[i]._id = col[i]._id.toString();
+  }
+  return col;
+};
 
 /**
   CRUDL

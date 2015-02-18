@@ -17,6 +17,9 @@ var _ON = 'supers';
 
 // Simple Helper methods
 var create = function (body, cb) {
+  // MUST copy the body because Mongo CHANGES the payload (which fucks
+  // things up if you're using the same 'body' for future calls)
+  body = JSON.parse( JSON.stringify(body) );
   var q = query().on(_ON).create().body(body);
   store.exec( q.qe, cb );
 };
@@ -35,6 +38,8 @@ describe('CRUD', function () {
     it('new record', function (done) {
       create( _FIXTURE.supers[0], function (err, res) {
         expect(err).to.not.be.ok;
+        // Check that create returns STRING _id (not ObjectID)
+        expect (typeof res.supers[0]._id).to.equal('string');
         expect(res.supers).to.have.length[1];
         expect( res.supers[0].pk ).to.equal('1');
         done();
@@ -48,7 +53,7 @@ describe('CRUD', function () {
         create( _FIXTURE.supers, function (err, res) {
           // Update the first record's power to 7 (a unique value we can check)
           var q = query().update().on(_ON).body({power:7});
-          q.qe.ids = [res.supers[0]._id.toString()];
+          q.qe.ids = [res.supers[0]._id];
           store.exec( q.qe, function (err, res) {
             expect( err ).to.not.be.ok;
             // Check that our record updated correctly
@@ -88,12 +93,12 @@ describe('CRUD', function () {
       });
     });
     it('by id', function (done) {
-      var id = _created.supers[0]._id.toString();
+      var id = _created.supers[0]._id;
       var q = query().on(_ON).find( id );
       store.exec( q.qe, function (err, res) {
         expect( err ).to.not.be.ok;
         expect( res.supers ).to.have.length(1);
-        expect( res.supers[0]._id.toString() ).to.equal( id );
+        expect( res.supers[0]._id ).to.equal( id );
         done();
       });
     });
@@ -108,9 +113,9 @@ describe('CRUD', function () {
     });
     it('match within ids', function (done) {
       var ids = [
-        _created.supers[0]._id.toString(),
-        _created.supers[1]._id.toString(),
-        _created.supers[2]._id.toString()
+        _created.supers[0]._id,
+        _created.supers[1]._id,
+        _created.supers[2]._id
       ];
       var q = query().on(_ON).find(ids).where('type').is('rogue');
       store.exec( q.qe, function (err, res) {
@@ -131,7 +136,7 @@ describe('CRUD', function () {
       });
     });
     it('by ids', function (done) {
-      var id = records.supers[0]._id.toString();
+      var id = records.supers[0]._id;
       var q = query().remove( id ).on(_ON);
       store.exec( q.qe, function (err,res) {
         expect(err).to.not.be.ok;
@@ -152,6 +157,23 @@ describe('CRUD', function () {
           expect( res.supers ).to.have.length(0);
           done();
         });
+      });
+    });
+  });
+
+  describe('ids', function (done) {
+    var records = [];
+    beforeEach( function (done) {
+      create( _FIXTURE.supers, function (err,res) {
+        records = res;
+        done();
+      });
+    });
+    it('_ids should always be strings, not ObjectIDs', function (done) {
+      expect( typeof records.supers[0]._id ).to.equal('string');
+      store.exec({do:'find', on:'supers'}, function (e,r) {
+        expect(typeof r.supers[0]._id).to.equal('string');
+        done();
       });
     });
   });
@@ -446,7 +468,7 @@ describe('Populate', function () {
     var q = query().find().on('tags').where('pk').in([1,3]);
     store.exec(q.qe, function (e,r) {
       var ids = [];
-      r.tags.forEach(function(el) { ids.push(el._id.toString()); });
+      r.tags.forEach(function(el) { ids.push(el._id); });
       q = query().update().on('supers').where('handle', 'Bruce').body({tags:ids});
       store.exec(q.qe, function (e,r) {
 
@@ -573,10 +595,14 @@ describe('Select', function () {
   describe('Offset', function () {
     var q;
     beforeEach( function (done) {
-      q = query().find().on(_ON);
-      create( _FIXTURE.supers, function (err,res) {
-        records = res;
-        done();
+      // Clears out the DB before repopulating
+      store.exec( query().remove().on(_ON).qe, function (err) {
+        if (err) throw err;
+        q = query().find().on(_ON);
+        create( _FIXTURE.supers, function (err,res) {
+          records = res;
+          done();
+        });
       });
     });
     it('by number', function (done) {
