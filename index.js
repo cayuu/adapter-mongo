@@ -1,9 +1,10 @@
 
 /**
-  Qe dependencies
+  Import utilities
+  @ignore
 */
 
-var Adapter = require('qe-adapter');
+var Skematic = require('skematic');
 
 
 /**
@@ -39,7 +40,7 @@ var adapter = MongoAdapter.prototype;
   Enable additonal Adapter instantiation from adapter instances
 */
 
-adapter.new = function () { return new Adapter(); };
+adapter.new = function () { return new MongoAdapter(); };
 
 
 /**

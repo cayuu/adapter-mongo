@@ -16,8 +16,8 @@
     "url": "https://github.com/mekanika/adapter/issues"
   },
   "dependencies": {
-    "qe-adapter": "^0.3.0",
-    "mongodb": "^1.4.30"
+    "mongodb": "^1.4.30",
+    "skematic": "^0.14.0"
   },
   "devDependencies": {
     "chai": "^2.0.0",
