@@ -48,7 +48,7 @@ To generate **coverage** reports:
 
 ## License
 
-Copyright &copy; 2013-2015 Clint Walker
+Copyright 2013-2015 Mekanika
 
-Released under the **Mozilla Public License v2.0** ([MPLv2](http://mozilla.org/MPL/2.0/))
+Released under the **MIT License** ([MIT](http://opensource.org/licenses/MIT))
 
