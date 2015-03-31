@@ -325,7 +325,10 @@ var getLinkedData = function (qe, docs, db, cb, self) {
 var toReplyFormat = function (res, key, linked) {
   key || (key = 'data');
   var ret = {};
-  ret[ key ] = mapIDs( res );
+
+  if (res instanceof Array) ret[key] = mapIDs( res );
+  else ret[key] = res;
+
   if (linked) ret.linked = linked;
   return ret;
 };
@@ -390,7 +393,7 @@ adapter.create = function (qe, cb) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
-      cb(null, toReplyFormat(res,qe.on));
+      cb(null, toReplyFormat( res.ops, qe.on ));
     });
 };
 
@@ -426,7 +429,7 @@ adapter.update = function (qe, cb) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
-      cb(null, toReplyFormat(res,qe.on));
+      cb(null, toReplyFormat( res.result.nModified, qe.on ));
     });
 };
 
@@ -441,7 +444,7 @@ adapter.remove = function (qe, cb) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
-      cb(null, toReplyFormat(res,qe.on));
+      cb(null, toReplyFormat( res.result.n, qe.on ));
     });
 };
 
@@ -468,7 +471,7 @@ adapter.find = function (qe, cb) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
-      cb(null, toReplyFormat(res,qe.on));
+      cb(null, toReplyFormat( res, qe.on ));
     });
   }
 
