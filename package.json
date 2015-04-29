@@ -17,14 +17,14 @@
     "url": "https://github.com/mekanika/adapter-mongo/issues"
   },
   "dependencies": {
-    "mongodb": "^2.0.25",
+    "mongodb": "^2.0.28",
     "skematic": "^0.14.0"
   },
   "devDependencies": {
-    "chai": "^2.2.0",
+    "chai": "^2.3.0",
     "istanbul": "^0.3.13",
-    "jshint": "^2.6.3",
-    "mekanika-query": "^0.9.0",
-    "mocha": "^2.2.1"
+    "jshint": "^2.7.0",
+    "mekanika-query": "^0.10.1",
+    "mocha": "^2.2.4"
   }
 }
