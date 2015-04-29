@@ -11,10 +11,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mekanika/adapter.git"
+    "url": "https://github.com/mekanika/adapter-mongo.git"
   },
   "bugs": {
-    "url": "https://github.com/mekanika/adapter/issues"
+    "url": "https://github.com/mekanika/adapter-mongo/issues"
   },
   "dependencies": {
     "mongodb": "^2.0.25",
