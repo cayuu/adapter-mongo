@@ -62,7 +62,10 @@ var _spawning = false;
 var cfg = adapter.config = {
   host: '127.0.0.1',
   port: '27017',
-  db: 'test'
+  db: 'test',
+  username: '',
+  password: '',
+  delegate: null
 };
 
 
@@ -88,6 +91,8 @@ adapter.exec = function (query, cb) {
   Connects the adapter to a test MongoDB
 
   @param {Function} cb The adapter.exec callback to pass errors to on fail
+
+  @see https://mongodb.github.io/node-mongodb-native/2.0/tutorials/connecting/
 */
 
 adapter.connect = function (cb) {
@@ -95,7 +100,10 @@ adapter.connect = function (cb) {
 
   var self = this;
 
-  var url = 'mongodb://'+cfg.host+':'+cfg.port+'/'+cfg.db;
+  var url = 'mongodb://';
+  if (cfg.username) url += cfg.username + ':' + cfg.password + '@';
+  url += cfg.host + ':' + cfg.port + '/' + cfg.db;
+  if (cfg.delegate) url += '?authSource=' + cfg.delegate;
 
   // STATE EVIL
   _spawning = true;
