@@ -83,7 +83,7 @@ adapter.exec = function (query, cb) {
   }
 
   if (this[ query.do ]) return this[ query.do ](query, cb);
-  else cb('Adapter does not implement action: '+query.do);
+  else cb('Adapter does not implement action: ' + query.do);
 };
 
 
@@ -112,7 +112,7 @@ adapter.connect = function (cb) {
     // STATE EVIL
     _spawning = false;
 
-    if (err) return cb('DB Connect failed: '+err);
+    if (err) return cb('DB Connect failed: ' + err);
 
     self.CONNECTED = true;
     self.db = db;
@@ -131,7 +131,7 @@ adapter.connect = function (cb) {
 */
 
 adapter.disconnect = function () {
-  this.db.close && this.db.close();
+  if (this.db.close) this.db.close();
   this.CONNECTED = false;
 };
 
@@ -161,8 +161,8 @@ var _mapOperators = function (match) {
 
   // Replace Query operators for Mongo operators
   for (var k in _map) {
-    var regex = new RegExp( '{"'+k+'"', 'g');
-    str = str.replace( regex, '{"'+_map[k]+'"');
+    var regex = new RegExp( '{"' + k + '"', 'g');
+    str = str.replace( regex, '{"' + _map[k] + '"');
   }
 
   return JSON.parse(str);
@@ -307,8 +307,8 @@ var getLinkedData = function (qe, docs, db, cb, self) {
     /*jshint loopfunc: true */
     (function (field, remoteKey) {
 
-      self.find( nq, function (e,r) {
-        if (e) { toDone = -1; return cb(err); }
+      self.find( nq, function (e, r) {
+        if (e) { toDone = -1; return cb(e); }
         linked[field] = r[remoteKey];
         if (!--toDone) onDone();
       });
@@ -356,7 +356,7 @@ var buildUpdateOperator = function (updates) {
   // Return first key in o
   var fk = function (o) { for (var k in o) { return k; } };
   // Create a single key object {k:v}
-  var oo = function (k,v) { var o = {}; o[k] = v; return o; };
+  var oo = function (k, v) { var o = {}; o[k] = v; return o; };
 
   var len = updates.length;
   while (len--) {
@@ -368,8 +368,8 @@ var buildUpdateOperator = function (updates) {
       // Map pull array to `pullAll`
       if (op === 'pull' && v instanceof Array) op = 'pullAll';
 
-      if (!ret['$'+op]) ret[ '$'+op ] = oo(k,v);
-      else ret['$'+op][k] = v;
+      if (!ret['$' + op]) ret[ '$' + op ] = oo(k, v);
+      else ret['$' + op][k] = v;
     }
   }
 
@@ -397,7 +397,7 @@ var mapIDs = function (col) {
 adapter.create = function (qe, cb) {
   this.db
     .collection( qe.on )
-    .insert( qe.body, {}, function (err,res) {
+    .insert( qe.body, {}, function (err, res) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
@@ -433,7 +433,7 @@ adapter.update = function (qe, cb) {
   var mq = buildMongoQuery(qe);
   this.db
     .collection( qe.on )
-    .update( sel, mq, opts, function (err,res) {
+    .update( sel, mq, opts, function (err, res) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
@@ -448,7 +448,7 @@ adapter.remove = function (qe, cb) {
 
   this.db
     .collection( qe.on )
-    .remove( sel, opts, function (err,res) {
+    .remove( sel, opts, function (err, res) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
@@ -475,7 +475,7 @@ adapter.find = function (qe, cb) {
 
   // If no 'populate' directive, return results
   if (!qe.populate) {
-    return request.toArray(function (err,res) {
+    return request.toArray(function (err, res) {
       // @todo These repeated sections could be factored into a partial
       // that returns a function with values set for `on` and `cb`
       if (err) return cb(err);
@@ -485,7 +485,7 @@ adapter.find = function (qe, cb) {
 
   // Handle Populate directives
   var self = this;
-  request.toArray( function (err,docs) {
+  request.toArray( function (err, docs) {
     if (err) return cb(err);
     getLinkedData(qe, docs, self.db, cb, self);
   });
