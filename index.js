@@ -1,13 +1,5 @@
 
 /**
-  Import utilities
-  @ignore
-*/
-
-var Skematic = require('skematic');
-
-
-/**
   Driver dependencies
 */
 
@@ -41,6 +33,16 @@ var adapter = MongoAdapter.prototype;
 */
 
 adapter.new = function () { return new MongoAdapter(); };
+
+
+/**
+  Hack to allow injecting a predefined 'Skematic' singleton
+*/
+
+var Skematic;
+adapter.useSkematic = function (skm) {
+  Skematic = skm;
+};
 
 
 /**
@@ -331,10 +333,26 @@ var getLinkedData = function (qe, docs, db, cb, self) {
 */
 
 var toReplyFormat = function (res, key, linked) {
-  key || (key = 'data');
+  if (!key) throw new Error('No qe.on key specified for adapter');
+
   var ret = {};
 
-  if (res instanceof Array) ret[key] = mapIDs( res );
+  // Determines whether the primaryKey field should be mapped from _id
+  // to something else. Note this should probably be provided as a method
+  // on the Skematic library directly.
+  var pk;
+  if (Skematic) {
+    var schema = Skematic._getSchema(key);
+    if (schema) {
+
+      for (var k in schema) {
+        if (!schema.hasOwnProperty(k)) continue;
+        if (schema[k].primaryKey && !schema[k].generate) pk = k;
+      }
+    }
+  }
+
+  if (res instanceof Array) ret[key] = mapIDs( res, key, pk );
   else ret[key] = res;
 
   if (linked) ret.linked = linked;
@@ -381,11 +399,24 @@ var buildUpdateOperator = function (updates) {
   Converts Mongo _id {ObjectID} on collection objects to a String
 
   @param {Object[]} col The collection to map
+  @param {String} resource The name of the resource currently being queried
+  @param {String} [idField] The name of the 'id' field
+
+  @return {Object[]} Collection with mapped ids
 */
 
-var mapIDs = function (col) {
-  for (var i=0; i < col.length; i++) {
+var mapIDs = function (col, resource, idField) {
+
+  for (var i = 0; i < col.length; i++) {
     col[i]._id = col[i]._id.toString();
+
+    // Renames the primary idField if provided
+    // Note: This is done directly rather than via Skematic as that
+    // would reloop through the entire collection - this way only loops once
+    if (idField) {
+      col[i][idField] = col[i]._id;
+      delete col[i]._id;
+    }
   }
   return col;
 };

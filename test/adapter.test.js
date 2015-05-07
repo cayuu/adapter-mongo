@@ -2,6 +2,7 @@
 var expect = require('chai').expect;
 var query = require('mekanika-query');
 var store = require('../index');
+var Skematic = require('skematic');
 
 
 var _FIXTURE = {
@@ -178,6 +179,43 @@ describe('CRUD', function () {
     });
   });
 });
+
+
+describe('Map IDs', function () {
+  var _created = [];
+  beforeEach( function (done) {
+    create( _FIXTURE.supers, function (err, res) {
+      _created = res;
+      done();
+    });
+  });
+  afterEach( function (done) {
+    store.exec(query().remove().on('supers').qe, done );
+  });
+
+  before( function () {
+    var s = {whipstick:{primaryKey:true}};
+    Skematic.useSchemas({supers:s});
+    store.useSkematic(Skematic);
+  });
+
+  after( function () {
+    store.useSkematic(null);
+  });
+
+
+  it('using a custom ID field', function (done) {
+    var id = _created.supers[0].whipstick;
+    var q = query().on(_ON).find(id);
+    store.exec( q.qe, function (err, res) {
+      expect( err ).to.not.be.ok;
+      expect( res.supers ).to.have.length(1);
+      expect( res.supers[0].pk ).to.equal( '1' );
+      done();
+    });
+  });
+});
+
 
 describe('Update operators', function () {
   var q;
