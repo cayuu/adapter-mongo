@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "coverage": "istanbul cover _mocha",
-    "lint": "jshint index.js test/",
+    "lint": "jshint --config .jshintrc index.js test/",
     "test": "mocha -R spec test"
   },
   "repository": {
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "mongodb": "^2.0.28",
-    "skematic": "^0.14.0"
+    "skematic": "^0.15.0"
   },
   "devDependencies": {
     "chai": "^2.3.0",
